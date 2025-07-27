@@ -1,6 +1,6 @@
 import * as sinon from 'sinon';
 import { ExtensionContext, window } from 'vscode';
-import { Service } from '../extension';
+import { Service } from '../Service';
 
 suite('Service Test Suite', () => {
   let activeEditorStub: sinon.SinonStub;
