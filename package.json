@@ -14,9 +14,12 @@
   "contributes": {
     "commands": [
       {
-        "command": "schnipsel.helloWorld",
-        "title": "Hello World"
+        "command": "schnipsel.copyCodeAsSnippet",
+        "title": "Copy Code as Snippet"
       }
+    ],
+    "activationEvents": [
+      "onCommand:schnipsel.copyCodeAsSnippet"
     ]
   },
   "scripts": {
