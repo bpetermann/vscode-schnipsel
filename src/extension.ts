@@ -1,26 +1,39 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import { COMMAND } from './constants';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export class Service {
+  constructor(private context: vscode.ExtensionContext) {}
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "schnipsel" is now active!');
+  init() {
+    const command = vscode.commands.registerCommand(COMMAND, this.copy, this);
+    this.context.subscriptions.push(command);
+  }
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('schnipsel.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from schnipsel!');
-	});
+  async copy() {
+    const editor = vscode.window.activeTextEditor;
 
-	context.subscriptions.push(disposable);
+    if (!editor) {
+      this.showError('No active editor');
+      return;
+    }
+
+    const codeToCopy = editor.document.getText();
+
+    try {
+      await vscode.env.clipboard.writeText(codeToCopy);
+      vscode.window.showInformationMessage('Code copied to clipboard.');
+    } catch {
+      this.showError('Failed to copy code to clipboard.');
+    }
+  }
+
+  private showError(message: string) {
+    vscode.window.showErrorMessage(message);
+  }
 }
 
-// This method is called when your extension is deactivated
+export function activate(context: vscode.ExtensionContext) {
+  new Service(context).init();
+}
+
 export function deactivate() {}
