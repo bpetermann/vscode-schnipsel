@@ -4,9 +4,9 @@ export class Logger {
   private static output = vscode.window.createOutputChannel('Schnipsel');
 
   public static show(text: string, label = 'Text') {
-    this.output.clear();
     this.output.appendLine(`${label}:`);
-    this.output.appendLine(text);
-    this.output.show(true);
+    Logger.output.appendLine(text);
+    Logger.output.appendLine('');
+    Logger.output.show(true);
   }
 }
