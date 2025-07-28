@@ -1,14 +1,10 @@
 export class Snippet {
-  constructor(
-    private readonly name: string,
-    private readonly prefix: string,
-    private readonly body: Array<string>,
-    private readonly description: string
-  ) {
-    this.name = name;
-    this.prefix = prefix;
+  private readonly name: string = '';
+  private readonly prefix: string = '';
+  private readonly description: string = '';
+
+  constructor(private readonly body: Array<string> = []) {
     this.body = body;
-    this.description = description;
   }
 
   toString(): string {
