@@ -1,7 +1,13 @@
 import * as vscode from 'vscode';
-import { COMMAND, FAIL, MISSING_EDITOR, SUCCESS } from './constants';
+import {
+  COMMAND,
+  FAIL,
+  MISSING_EDITOR,
+  OPEN_SNIPPETS,
+  SUCCESS,
+} from './constants';
 import { Parser } from './Parser';
-
+import { Snippet } from './Snippet';
 export class Service {
   constructor(private context: vscode.ExtensionContext) {}
 
@@ -19,9 +25,11 @@ export class Service {
     }
 
     try {
-      const snippet = new Parser(this.getText(editor)).parse();
+      const { body } = new Parser(this.getText(editor));
+      const snippet = new Snippet(body).toString();
+
       await vscode.env.clipboard.writeText(snippet);
-      this.showInfo(SUCCESS);
+      this.showInfo();
     } catch {
       this.showError(FAIL);
     }
