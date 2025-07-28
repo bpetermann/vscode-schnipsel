@@ -35,8 +35,14 @@ export class Service {
     );
   }
 
-  private showInfo(message: string): void {
-    vscode.window.showInformationMessage(message);
+  async showInfo() {
+    const open = 'Open snippet file';
+
+    const choice = await vscode.window.showInformationMessage(SUCCESS, open);
+
+    if (choice === open) {
+      await vscode.commands.executeCommand(OPEN_SNIPPETS);
+    }
   }
 
   private showError(message: string): void {
