@@ -3,7 +3,7 @@ export class Snippet {
   private readonly prefix: string = '';
   private readonly description: string = '';
 
-  constructor(private readonly body: Array<string> = []) {
+  constructor(private readonly body: Array<string>) {
     this.body = body;
   }
 
