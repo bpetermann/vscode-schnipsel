@@ -4,3 +4,4 @@ export const SUCCESS =
   'Snippet copied! You can now paste it into your snippets file.' as const;
 export const FAIL = 'Failed to copy code to clipboard.' as const;
 export const OPEN_SNIPPETS = 'workbench.action.openSnippets' as const;
+export const NOT_SUPPORTED = 'Currently not supported.' as const;
