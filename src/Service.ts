@@ -3,6 +3,7 @@ import {
   COMMAND,
   FAIL,
   MISSING_EDITOR,
+  NOT_SUPPORTED,
   OPEN_SNIPPETS,
   SUCCESS,
 } from './constants';
@@ -21,6 +22,11 @@ export class Service {
 
     if (!editor) {
       this.showError(MISSING_EDITOR);
+      return;
+    }
+
+    if (!this.isSupported(editor)) {
+      this.showError(NOT_SUPPORTED);
       return;
     }
 
@@ -46,7 +52,11 @@ export class Service {
   async showInfo() {
     const open = 'Open snippet file';
 
-    const choice = await vscode.window.showInformationMessage(SUCCESS, open);
+    const choice = await vscode.window.showInformationMessage(
+      SUCCESS,
+      open,
+      'Dismiss'
+    );
 
     if (choice === open) {
       await vscode.commands.executeCommand(OPEN_SNIPPETS);
@@ -55,5 +65,14 @@ export class Service {
 
   private showError(message: string): void {
     vscode.window.showErrorMessage(message);
+  }
+
+  private isSupported(editor: vscode.TextEditor): boolean {
+    return [
+      'typescriptreact',
+      'javascriptreact',
+      'javascript',
+      'typescript',
+    ].includes(editor.document.languageId);
   }
 }

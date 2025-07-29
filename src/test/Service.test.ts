@@ -16,7 +16,9 @@ suite('Service Test Suite', () => {
   teardown(() => sinon.restore());
 
   test('Shows info after successful copy', async () => {
-    activeEditorStub.get(() => ({ document: { getText: () => '' } }));
+    activeEditorStub.get(() => ({
+      document: { getText: () => '', languageId: 'typescript' },
+    }));
 
     await new Service({} as ExtensionContext).copy();
 
@@ -24,6 +26,14 @@ suite('Service Test Suite', () => {
   });
 
   test('Shows error if no active editor', async () => {
+    await new Service({} as ExtensionContext).copy();
+
+    sinon.assert.calledOnce(showErrorStub);
+  });
+
+  test('Shows error if no language support', async () => {
+    activeEditorStub.get(() => ({ document: { getText: () => '' } }));
+
     await new Service({} as ExtensionContext).copy();
 
     sinon.assert.calledOnce(showErrorStub);
