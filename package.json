@@ -3,11 +3,22 @@
   "displayName": "schnipsel",
   "description": "Generate code snippets with ease",
   "version": "0.0.1",
+  "publisher": "bpetermann",
+  "license": "MIT",
   "engines": {
     "vscode": "^1.102.0"
   },
   "categories": [
-    "Other"
+    "Snippets"
+  ],
+  "keywords": [
+    "snippet",
+    "snippets",
+    "generator",
+    "code",
+    "productivity",
+    "javascript",
+    "typescript"
   ],
   "activationEvents": [],
   "main": "./dist/extension.js",
@@ -22,6 +33,14 @@
       "onCommand:schnipsel.copyCodeAsSnippet"
     ]
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bpetermann/vscode-schnipsel"
+  },
+  "bugs": {
+    "url": "https://github.com/bpetermann/vscode-schnipsel/issues"
+  },
+  "homepage": "https://github.com/bpetermann/vscode-schnipsel#readme",
   "scripts": {
     "vscode:prepublish": "npm run package",
     "compile": "npm run check-types && npm run lint && node esbuild.js",
