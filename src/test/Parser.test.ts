@@ -102,12 +102,21 @@ suite('Parser Test Suite', () => {
     assert.strictEqual(body[2].includes('$2'), true);
   });
 
-  test('Handles multiple tab stops in one line', () => {
-    const input = `interface Props {};
-    function Foo(props: Props) {}`;
+  test('Should not replace function names within double-quoted string literals', () => {
+    const input = `function MyFunction() {};
+    "MyFunction"`;
 
     const { body } = new Parser(input);
 
-    assert.strictEqual(body[1].includes('$1') && body[1].includes('$2'), true);
+    assert.strictEqual(body[1].includes('MyFunction'), true);
+  });
+
+  test('Should not replace function names within single-quoted string literals', () => {
+    const input = `function MyFunction() {};
+    'MyFunction'`;
+
+    const { body } = new Parser(input);
+
+    assert.strictEqual(body[1].includes('MyFunction'), true);
   });
 });

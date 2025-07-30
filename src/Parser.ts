@@ -114,13 +114,20 @@ export class Parser {
   private applyTabStops(): void {
     const updatedTokens = this.currentLineTokens.map((item) => {
       for (const [tabStop, id] of this.tabStopMap) {
-        if (item.includes(tabStop)) {
+        if (item.includes(tabStop) && !this.isStringLiteral(item)) {
           return item.replace(tabStop, `$${id}`);
         }
       }
       return item;
     });
     this.currentLineTokens = updatedTokens;
+  }
+
+  private isStringLiteral(item: string): item is `"${string}"` | `'${string}'` {
+    return (
+      (item.startsWith("'") && item.endsWith("'")) ||
+      (item.startsWith('"') && item.endsWith('"'))
+    );
   }
 
   private normalizeFunctionName(name: string, tabId: number): string {
