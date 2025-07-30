@@ -1,11 +1,10 @@
+import path from 'path';
 import * as vscode from 'vscode';
 import {
   COMMAND,
-  FAIL,
-  MISSING_EDITOR,
-  NOT_SUPPORTED,
+  MESSAGES,
   OPEN_SNIPPETS,
-  SUCCESS,
+  SUPPORTED_LANGUAGES,
 } from './constants';
 import { Parser } from './Parser';
 import { Snippet } from './Snippet';
@@ -20,24 +19,20 @@ export class Service {
   async copy() {
     const editor = vscode.window.activeTextEditor;
 
-    if (!editor) {
-      this.showError(MISSING_EDITOR);
-      return;
-    }
-
-    if (!this.isSupported(editor)) {
-      this.showError(NOT_SUPPORTED);
+    if (!editor || !this.isSupported(editor)) {
+      this.showError(
+        !editor ? MESSAGES.MISSING_EDITOR : MESSAGES.NOT_SUPPORTED
+      );
       return;
     }
 
     try {
-      const { body } = new Parser(this.getText(editor));
-      const snippet = new Snippet(body).toString();
-
+      const snippet = this.generateSnippet(editor);
       await vscode.env.clipboard.writeText(snippet);
       this.showInfo();
-    } catch {
-      this.showError(FAIL);
+    } catch (e) {
+      console.error(MESSAGES.ERROR, e);
+      this.showError(MESSAGES.FAIL);
     }
   }
 
@@ -49,30 +44,36 @@ export class Service {
     );
   }
 
-  async showInfo() {
-    const open = 'Open snippet file';
+  private generateSnippet(editor: vscode.TextEditor): string {
+    const [language, name] = this.getMeta(editor);
+    const { body } = new Parser(this.getText(editor));
+    return new Snippet(body, language, name).toString();
+  }
 
+  private getMeta({ document }: vscode.TextEditor): [string, string] {
+    const language = document.languageId;
+    const filename = path.parse(document.uri.fsPath).name;
+
+    return [language, filename];
+  }
+
+  async showInfo() {
     const choice = await vscode.window.showInformationMessage(
-      SUCCESS,
-      open,
-      'Dismiss'
+      MESSAGES.SUCCESS,
+      MESSAGES.OPEN,
+      MESSAGES.Dismiss
     );
 
-    if (choice === open) {
+    if (choice === MESSAGES.OPEN) {
       await vscode.commands.executeCommand(OPEN_SNIPPETS);
     }
   }
 
-  private showError(message: string): void {
-    vscode.window.showErrorMessage(message);
+  private isSupported(editor: vscode.TextEditor): boolean {
+    return SUPPORTED_LANGUAGES.includes(editor.document.languageId);
   }
 
-  private isSupported(editor: vscode.TextEditor): boolean {
-    return [
-      'typescriptreact',
-      'javascriptreact',
-      'javascript',
-      'typescript',
-    ].includes(editor.document.languageId);
+  private showError(message: string): void {
+    vscode.window.showErrorMessage(message);
   }
 }

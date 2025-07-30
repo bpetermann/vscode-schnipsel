@@ -1,3 +1,4 @@
+import path from 'path';
 import * as sinon from 'sinon';
 import { ExtensionContext, window } from 'vscode';
 import { Service } from '../Service';
@@ -11,13 +12,25 @@ suite('Service Test Suite', () => {
     showInfoStub = sinon.stub(window, 'showInformationMessage').resolves();
     showErrorStub = sinon.stub(window, 'showErrorMessage').resolves();
     activeEditorStub = sinon.stub(window, 'activeTextEditor');
+
+    sinon.stub(path, 'parse').returns({
+      root: '',
+      dir: '',
+      base: '',
+      ext: '',
+      name: 'fileName',
+    });
   });
 
   teardown(() => sinon.restore());
 
   test('Shows info after successful copy', async () => {
     activeEditorStub.get(() => ({
-      document: { getText: () => '', languageId: 'typescript' },
+      document: {
+        getText: () => '',
+        languageId: 'typescript',
+        uri: { fsPath: '' },
+      },
     }));
 
     await new Service({} as ExtensionContext).copy();
@@ -32,7 +45,9 @@ suite('Service Test Suite', () => {
   });
 
   test('Shows error if no language support', async () => {
-    activeEditorStub.get(() => ({ document: { getText: () => '' } }));
+    activeEditorStub.get(() => ({
+      document: { getText: () => '' },
+    }));
 
     await new Service({} as ExtensionContext).copy();
 
