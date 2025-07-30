@@ -48,6 +48,10 @@ No additional setup required. Works out of the box with VS Code’s built-in sni
 
 Contributions are welcome! Feel free to open an issue or pull request on [GitHub](https://github.com/bpetermann/vscode-schnipsel).
 
+## License
+
+[MIT](https://github.com/bpetermann/vscode-schnipsel/blob/main/LICENSE)
+
 ## Enjoy!
 
 Happy coding, and may your snippets always be sharp. ✂️
