@@ -6,23 +6,34 @@ import {
   OPEN_SNIPPETS,
   SUPPORTED_LANGUAGES,
 } from './constants';
-import { Parser } from './Parser';
-import { Snippet } from './Snippet';
-export class Service {
-  constructor(private context: vscode.ExtensionContext) {}
+import { ParserFactory, SnippetFactory } from './types';
 
-  init() {
-    const command = vscode.commands.registerCommand(COMMAND, this.copy, this);
+export class Service {
+  constructor(
+    private context: vscode.ExtensionContext,
+    private parseFactory: ParserFactory,
+    private snippetFactory: SnippetFactory
+  ) {}
+
+  registerCommands() {
+    const command = vscode.commands.registerCommand(
+      COMMAND,
+      this.copyCodeAsSnippet,
+      this
+    );
     this.context.subscriptions.push(command);
   }
 
-  async copy() {
+  async copyCodeAsSnippet() {
     const editor = vscode.window.activeTextEditor;
 
-    if (!editor || !this.isSupported(editor)) {
-      this.showError(
-        !editor ? MESSAGES.MISSING_EDITOR : MESSAGES.NOT_SUPPORTED
-      );
+    if (!editor) {
+      this.showError(MESSAGES.MISSING_EDITOR);
+      return;
+    }
+
+    if (!this.isSupported(editor)) {
+      this.showError(MESSAGES.NOT_SUPPORTED);
       return;
     }
 
@@ -36,7 +47,7 @@ export class Service {
     }
   }
 
-  private getText(editor: vscode.TextEditor): string {
+  private getEditorContent(editor: vscode.TextEditor): string {
     const { selection, document } = editor;
 
     return document.getText(
@@ -46,8 +57,9 @@ export class Service {
 
   private generateSnippet(editor: vscode.TextEditor): string {
     const [language, name] = this.getMeta(editor);
-    const { body } = new Parser(this.getText(editor));
-    return new Snippet(body, language, name).toString();
+    const { body } = this.parseFactory(this.getEditorContent(editor));
+    const snippet = this.snippetFactory(body, language, name);
+    return snippet.toString();
   }
 
   private getMeta({ document }: vscode.TextEditor): [string, string] {

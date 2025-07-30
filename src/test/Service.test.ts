@@ -1,12 +1,21 @@
 import path from 'path';
 import * as sinon from 'sinon';
 import { ExtensionContext, window } from 'vscode';
+import { Parser } from '../Parser';
 import { Service } from '../Service';
+import { Snippet } from '../Snippet';
 
 suite('Service Test Suite', () => {
   let activeEditorStub: sinon.SinonStub;
   let showErrorStub: sinon.SinonStub;
   let showInfoStub: sinon.SinonStub;
+
+  const parseFactory = (text: string): Parser => new Parser(text);
+  const snippetFactory = (
+    body: string[],
+    language: string,
+    name: string
+  ): Snippet => new Snippet(body, language, name);
 
   setup(() => {
     showInfoStub = sinon.stub(window, 'showInformationMessage').resolves();
@@ -33,13 +42,21 @@ suite('Service Test Suite', () => {
       },
     }));
 
-    await new Service({} as ExtensionContext).copy();
+    await new Service(
+      {} as ExtensionContext,
+      parseFactory,
+      snippetFactory
+    ).copyCodeAsSnippet();
 
     sinon.assert.calledOnce(showInfoStub);
   });
 
   test('Shows error if no active editor', async () => {
-    await new Service({} as ExtensionContext).copy();
+    await new Service(
+      {} as ExtensionContext,
+      parseFactory,
+      snippetFactory
+    ).copyCodeAsSnippet();
 
     sinon.assert.calledOnce(showErrorStub);
   });
@@ -49,7 +66,11 @@ suite('Service Test Suite', () => {
       document: { getText: () => '' },
     }));
 
-    await new Service({} as ExtensionContext).copy();
+    await new Service(
+      {} as ExtensionContext,
+      parseFactory,
+      snippetFactory
+    ).copyCodeAsSnippet();
 
     sinon.assert.calledOnce(showErrorStub);
   });
