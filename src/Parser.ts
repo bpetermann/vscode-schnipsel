@@ -1,5 +1,9 @@
 import { keywords, KeywordType, KnownProcessorMethod, Tokens } from './types';
 
+/**
+ * Parses source code to transform it into a VS Code snippet body format,
+ * identifying declarations and generating tab stops for them.
+ */
 export class Parser {
   public body: Array<string> = [];
 

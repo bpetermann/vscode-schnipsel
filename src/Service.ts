@@ -8,6 +8,10 @@ import {
 } from './constants';
 import { ParserFactory, SnippetFactory } from './types';
 
+/**
+ * The main service class for the VS Code extension.
+ * Manages commands, user interactions, and orchestrates snippet generation.
+ */
 export class Service {
   constructor(
     private context: vscode.ExtensionContext,
@@ -38,8 +42,8 @@ export class Service {
     }
 
     try {
-      const snippet = this.generateSnippet(editor);
-      await vscode.env.clipboard.writeText(snippet);
+      const snippetContent = this.generateSnippet(editor);
+      await vscode.env.clipboard.writeText(snippetContent);
       this.showInfo();
     } catch (e) {
       console.error(MESSAGES.ERROR, e);
