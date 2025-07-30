@@ -1,112 +1,132 @@
-import { keywords, KeywordType, Tokens } from './types';
+import { keywords, KeywordType, KnownProcessorMethod, Tokens } from './types';
 
 export class Parser {
   public body: Array<string> = [];
 
-  private source: Array<string>;
-  private currentLine: number = 0;
-  private currentTabStop: number = 0;
-  private tokens: Tokens = [];
-  private tabStops = new Map<string, number>();
+  private sourceLines: Array<string>;
+  private currentLineIndex: number = 0;
+  private nextTapStopId: number = 0;
+  private currentLineTokens: Tokens = [];
+  private tabStopMap = new Map<string, number>();
+
+  private readonly keywordProcessors: Map<KeywordType, KnownProcessorMethod>;
 
   constructor(input: string) {
-    this.source = input.trim().split('\n');
-    this.parseSource();
+    this.sourceLines = input.trim().split('\n');
+    this.keywordProcessors = new Map([
+      ['type', this.processGenericDeclaration.bind(this)],
+      ['interface', this.processGenericDeclaration.bind(this)],
+      ['function', this.processFunction.bind(this)],
+    ]);
+    this.processAllLines();
   }
 
-  parseSource(): void {
-    while (this.currentLine < this.source.length) {
-      this.processTokens();
+  private processAllLines(): void {
+    while (this.currentLineIndex < this.sourceLines.length) {
+      this.processCurrentLine();
     }
   }
 
-  private processTokens() {
-    this.tokens = this.nextTokens();
+  private processCurrentLine(): void {
+    this.currentLineTokens = this.getCurrentLineTokens();
 
-    const handlers: (() => void)[] = [
-      ...keywords.map((key) => () => this.handleDeclaration(key)),
-      () => this.replaceTabStopReferences(),
-    ];
+    keywords.forEach((key) => {
+      if (
+        this.currentLineTokens.includes(key.toLowerCase()) &&
+        this.keywordProcessors.has(key)
+      ) {
+        this.handleKeywordDeclaration(key);
+      }
+    });
 
-    handlers.forEach((handler) => handler());
+    this.applyTabStops();
 
-    this.push(this.tokens);
+    this.appendProcessedLine(this.currentLineTokens);
   }
 
-  private nextTokens(): Tokens {
-    return this.source[this.currentLine++].split(' ');
+  private getCurrentLineTokens(): Tokens {
+    return this.sourceLines[this.currentLineIndex++].split(' ');
   }
 
-  private nextTabStop(): void {
-    ++this.currentTabStop;
+  private generateNextTabStopId(): number {
+    return ++this.nextTapStopId;
   }
 
-  private push(tokens: Tokens): void {
+  private appendProcessedLine(tokens: Tokens): void {
     this.body.push(tokens.join(' '));
   }
 
-  private addTabStop(name: string) {
-    this.tabStops.set(name, this.currentTabStop);
+  private registerTabStop(name: string, tabId: number) {
+    this.tabStopMap.set(name, tabId);
   }
 
-  private handleDeclaration(key: KeywordType): void {
-    const index = this.tokens.findIndex((v) => v === key.toLowerCase());
-    const slice = this.tokens.slice(index + 1);
-    const nextIndex = slice.findIndex(Boolean);
+  private handleKeywordDeclaration(key: KeywordType): void {
+    const keywordIndex = this.currentLineTokens.findIndex((v) => v === key);
+    const tokensAfterKeyword = this.currentLineTokens.slice(keywordIndex + 1);
+    const nameOffsetInSlice = tokensAfterKeyword.findIndex(Boolean);
 
-    if (index === -1 || nextIndex === -1) {
+    if (keywordIndex === -1 || nameOffsetInSlice === -1) {
       return;
     }
 
-    this.handleSwitch(key, index, nextIndex);
+    const nameTokenIndex = keywordIndex + 1 + nameOffsetInSlice;
+    const declaredName = this.currentLineTokens[nameTokenIndex];
+    const newTabStopId = this.generateNextTabStopId();
+
+    this.invokeKeywordProcessor(
+      key,
+      declaredName,
+      nameTokenIndex,
+      newTabStopId
+    );
   }
 
-  private handleSwitch(
+  private invokeKeywordProcessor(
     key: KeywordType,
-    index: number,
-    nextIndex: number
+    name: string,
+    nextIndex: number,
+    newTabStopId: number
   ): void {
-    const nameIndex = index + 1 + nextIndex;
-    const name = this.tokens[nameIndex];
-    this.nextTabStop();
+    const processor = this.keywordProcessors.get(key);
 
-    this[`handle${key}`](name, nameIndex);
+    if (processor) {
+      processor(name, nextIndex, newTabStopId);
+    }
   }
 
-  private handleType(name: string, nameIndex: number): void {
-    this.addTabStop(name);
-    this.tokens[nameIndex] = `$${this.currentTabStop}`;
+  private processGenericDeclaration(
+    name: string,
+    index: number,
+    tabId: number
+  ): void {
+    this.registerTabStop(name, tabId);
+    this.currentLineTokens[index] = `$${tabId}`;
   }
 
-  private handleInterface(name: string, nameIndex: number): void {
-    this.addTabStop(name);
-    this.tokens[nameIndex] = `$${this.currentTabStop}`;
+  private processFunction(name: string, index: number, tabId: number): void {
+    this.currentLineTokens[index] = this.normalizeFunctionName(name, tabId);
   }
 
-  private handleFunction(name: string, nameIndex: number): void {
-    this.tokens[nameIndex] = this.normalizeFunctionName(name);
-  }
-
-  private replaceTabStopReferences(): void {
-    const updatedTokens = this.tokens.map((item) => {
-      for (const [tabStop, id] of this.tabStops) {
+  private applyTabStops(): void {
+    const updatedTokens = this.currentLineTokens.map((item) => {
+      for (const [tabStop, id] of this.tabStopMap) {
         if (item.includes(tabStop)) {
           return item.replace(tabStop, `$${id}`);
         }
       }
       return item;
     });
-    this.tokens = updatedTokens;
+    this.currentLineTokens = updatedTokens;
   }
 
-  private normalizeFunctionName(name: string): string {
+  private normalizeFunctionName(name: string, tabId: number): string {
     if (name.includes('(')) {
       const [func, rest] = name.split('(');
-      this.addTabStop(func);
-      return `$${this.currentTabStop}(${rest}`;
+      this.registerTabStop(func, tabId);
+      return `$${tabId}(${rest}`;
     } else {
-      this.addTabStop(name);
-      return `$${this.currentTabStop}`;
+      this.registerTabStop(name, tabId);
+      return `$${tabId}`;
     }
   }
 }

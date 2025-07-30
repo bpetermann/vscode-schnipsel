@@ -15,7 +15,7 @@ export const MESSAGES = {
 
 /** SNIPPET */
 export const SNIPPET = {
-  NAME: 'Snippet from ',
+  NAME: 'Snippet from',
 } as const;
 
 /** SUPPORTED_LANGUAGES */
