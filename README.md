@@ -44,7 +44,7 @@ No additional setup required. Works out of the box with VS Code’s built-in sni
 
 ## Usage Examples
 
-![ScreenRecording2025-07-30at21 24 08-ezgif com-video-to-gif-converter(1)](resources/demo.gif)
+![Demo](https://raw.githubusercontent.com/bpetermann/vscode-schnipsel/main/resources/demo.gif)
 
 ## Contributing
 
