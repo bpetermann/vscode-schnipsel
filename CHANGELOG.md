@@ -14,3 +14,5 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Adds the `Copy Code as Snippet` command
 - Generates intelligent snippets with automatic tab stops
 - Supports TS, JS, JSX, and TSX files
+
+[1.0.0]: https://github.com/bpetermann/vscode-schnipsel/releases/tag/v1.0.0
