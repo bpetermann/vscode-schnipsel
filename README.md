@@ -1,5 +1,7 @@
 # Schnipsel
 
+![Visual Studio Marketplace Downloads] ![Visual Studio Marketplace Version]
+
 **Schnipsel** – Snippet generation made easy!
 
 This extension adds the command **Copy Code as Snippet** to your Command Palette. When run, it converts the selected code, or the entire file if nothing is selected, into a ready-to-use VS Code snippet and copies it to your clipboard.
@@ -55,3 +57,6 @@ Contributions are welcome! Feel free to open an issue or pull request on [GitHub
 ## Enjoy!
 
 Happy coding, and may your snippets always be sharp. ✂️
+
+[Visual Studio Marketplace Downloads]: https://img.shields.io/visual-studio-marketplace/d/bpetermann.schnipsel
+[Visual Studio Marketplace Version]: https://img.shields.io/visual-studio-marketplace/v/bpetermann.schnipsel
