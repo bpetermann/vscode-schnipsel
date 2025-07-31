@@ -6,4 +6,11 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.0.0] - 2025-07-31
+
+### Added
+
 - Initial release
+- Adds the `Copy Code as Snippet` command
+- Generates intelligent snippets with automatic tab stops
+- Supports TS, JS, JSX, and TSX files
