@@ -6,6 +6,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+### Added
+
+- Replace class name declarations with tab stops
+
 ## [1.0.1] - 2025-07-31
 
 - Fix readme demo.gif
