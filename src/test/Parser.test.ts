@@ -11,7 +11,7 @@ suite('Parser Test Suite', () => {
   });
 
   test('Replace function call with tab stop', () => {
-    const input = `function foo() {} 
+    const input = `function foo() {}
     foo()`;
 
     const { body } = new Parser(input);
@@ -33,6 +33,41 @@ suite('Parser Test Suite', () => {
     const { body } = new Parser(input);
 
     assert.strictEqual(body[0].includes('$1'), true);
+  });
+
+  test('Replaces class name with spacing with tab stop', () => {
+    const input = `class MyClass {};`;
+
+    const { body } = new Parser(input);
+
+    assert.strictEqual(body[0].includes('$1'), true);
+  });
+
+  test('Replaces class name without spacing with tab stop', () => {
+    const input = `class MyClass{};`;
+
+    const { body } = new Parser(input);
+
+    assert.strictEqual(body[0].includes('$1'), true);
+  });
+
+  test('Replaces extended class with tab stop', () => {
+    const input = `class MyClass extends BaseClass {}`;
+
+    const { body } = new Parser(input);
+
+    assert.ok(body[0].startsWith('class $1 extends'));
+  });
+
+  test('Replaces class instantiation with tab stop', () => {
+    const input = `class MyClass{};
+    new MyClass()`;
+
+    const { body } = new Parser(input);
+
+    console.log(body[1]);
+
+    assert.strictEqual(body[1].includes('new $1()'), true);
   });
 
   test('Handles multiple constructs and reuse of tab stop', () => {
@@ -62,7 +97,7 @@ suite('Parser Test Suite', () => {
     function greet() {}
     
     
-    
+
     greet()`;
 
     const { body } = new Parser(input);
