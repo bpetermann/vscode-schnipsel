@@ -21,6 +21,7 @@ export class Parser {
       ['type', this.processGenericDeclaration.bind(this)],
       ['interface', this.processGenericDeclaration.bind(this)],
       ['function', this.processFunction.bind(this)],
+      ['class', this.processClass.bind(this)],
     ]);
     this.processAllLines();
   }
@@ -108,7 +109,19 @@ export class Parser {
   }
 
   private processFunction(name: string, index: number, tabId: number): void {
-    this.currentLineTokens[index] = this.normalizeFunctionName(name, tabId);
+    this.currentLineTokens[index] = this.normalizeNameWithSuffix(
+      name,
+      tabId,
+      '('
+    );
+  }
+
+  private processClass(name: string, index: number, tabId: number): void {
+    this.currentLineTokens[index] = this.normalizeNameWithSuffix(
+      name,
+      tabId,
+      '{'
+    );
   }
 
   private applyTabStops(): void {
@@ -130,9 +143,13 @@ export class Parser {
     );
   }
 
-  private normalizeFunctionName(name: string, tabId: number): string {
-    if (name.includes('(')) {
-      const [func, rest] = name.split('(');
+  private normalizeNameWithSuffix(
+    name: string,
+    tabId: number,
+    delimiter: '(' | '{'
+  ): string {
+    if (name.includes(delimiter)) {
+      const [func, rest] = name.split(delimiter);
       this.registerTabStop(func, tabId);
       return `$${tabId}(${rest}`;
     } else {
