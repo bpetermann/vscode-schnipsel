@@ -15,7 +15,7 @@ export class Parser {
 
   private sourceLines: Array<string>;
   private currentLineIndex: number = 0;
-  private nextTapStopId: number = 0;
+  private nextTabStopId: number = 0;
   private currentLineTokens: Tokens = [];
   private tabStopMap = new Map<string, number>();
 
@@ -61,7 +61,7 @@ export class Parser {
   }
 
   private generateNextTabStopId(): number {
-    return ++this.nextTapStopId;
+    return ++this.nextTabStopId;
   }
 
   private appendProcessedLine(tokens: Tokens): void {
