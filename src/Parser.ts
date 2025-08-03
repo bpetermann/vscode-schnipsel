@@ -1,4 +1,10 @@
-import { keywords, KeywordType, KnownProcessorMethod, Tokens } from './types';
+import {
+  EMPTY_TOKEN,
+  keywords,
+  KeywordType,
+  KnownProcessorMethod,
+  Tokens,
+} from './types';
 
 /**
  * Parses source code to transform it into a VS Code snippet body format,
@@ -22,6 +28,7 @@ export class Parser {
       ['interface', this.processGenericDeclaration.bind(this)],
       ['function', this.processFunction.bind(this)],
       ['class', this.processClass.bind(this)],
+      ['const', this.processConst.bind(this)],
     ]);
     this.processAllLines();
   }
@@ -124,6 +131,13 @@ export class Parser {
     );
   }
 
+  private processConst(name: string, index: number, tabId: number): void {
+    if (this.isArrowFunctionPattern(index)) {
+      this.registerTabStop(name, tabId);
+      this.currentLineTokens[index] = `$${tabId}`;
+    }
+  }
+
   private applyTabStops(): void {
     const updatedTokens = this.currentLineTokens.map((item) => {
       for (const [tabStop, id] of this.tabStopMap) {
@@ -134,6 +148,27 @@ export class Parser {
       return item;
     });
     this.currentLineTokens = updatedTokens;
+  }
+
+  private isArrowFunctionPattern(index: number): boolean {
+    const [next, i] = this.peekToken(index + 1);
+    const [afterNext] = this.peekToken(i + 1);
+
+    return next === '=' && (afterNext.startsWith('(') || afterNext === 'async');
+  }
+
+  /**
+   * Returns the next non-empty token and its actual index in the token list.
+   * Skips over empty strings (e.g. from irregular spacing).
+   */
+  private peekToken(startIndex: number): [token: string, index: number] {
+    for (let i = startIndex; i < this.currentLineTokens.length; i++) {
+      const token = this.currentLineTokens[i];
+      if (token.trim() !== EMPTY_TOKEN) {
+        return [token, i];
+      }
+    }
+    return [EMPTY_TOKEN, -1];
   }
 
   private isStringLiteral(item: string): item is `"${string}"` | `'${string}'` {
