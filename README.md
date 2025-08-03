@@ -33,6 +33,8 @@ Currently supports:
 
 No additional setup required. Works out of the box with VS Code’s built-in snippet system.
 
+> **Note**: While not required, this extension works best when your code is well-formatted and free of syntax errors. Using a code formatter like **Prettier** and a linter like **ESLint** is highly recommended to ensure the most predictable and accurate results.
+
 ## Release Notes
 
 **v1.0.0**
