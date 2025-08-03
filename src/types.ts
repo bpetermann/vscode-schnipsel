@@ -5,7 +5,15 @@ export type Tokens = Array<string>;
 
 export type TokenHandler = [test: () => boolean, handler: () => void];
 
-export const keywords = ['function', 'type', 'interface', 'class'] as const;
+export const EMPTY_TOKEN = '' as const;
+
+export const keywords = [
+  'function',
+  'type',
+  'interface',
+  'class',
+  'const',
+] as const;
 
 export type KeywordType = (typeof keywords)[number];
 
