@@ -141,13 +141,32 @@ export class Parser {
   private applyTabStops(): void {
     const updatedTokens = this.currentLineTokens.map((item) => {
       for (const [tabStop, id] of this.tabStopMap) {
-        if (item.includes(tabStop) && !this.isStringLiteral(item)) {
+        if (
+          this.isWholeWordMatch(item, tabStop) &&
+          !this.isObjectPropertyKey(item) &&
+          !this.isStringLiteral(item)
+        ) {
           return item.replace(tabStop, `$${id}`);
         }
       }
       return item;
     });
     this.currentLineTokens = updatedTokens;
+  }
+
+  private isWholeWordMatch(item: string, tabStop: string): boolean {
+    return item === tabStop || item.replace(/[^a-zA-Z0-9]/g, '') === tabStop;
+  }
+
+  private isObjectPropertyKey(item: string): boolean {
+    return item.endsWith(':');
+  }
+
+  private isStringLiteral(item: string): item is `"${string}"` | `'${string}'` {
+    return (
+      (item.startsWith("'") && item.endsWith("'")) ||
+      (item.startsWith('"') && item.endsWith('"'))
+    );
   }
 
   private isArrowFunctionPattern(index: number): boolean {
@@ -169,13 +188,6 @@ export class Parser {
       }
     }
     return [EMPTY_TOKEN, -1];
-  }
-
-  private isStringLiteral(item: string): item is `"${string}"` | `'${string}'` {
-    return (
-      (item.startsWith("'") && item.endsWith("'")) ||
-      (item.startsWith('"') && item.endsWith('"'))
-    );
   }
 
   private normalizeNameWithSuffix(
