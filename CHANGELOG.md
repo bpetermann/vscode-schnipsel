@@ -11,7 +11,13 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Replace class name declarations with tab stops
 - Replace arrow function declarations with tab stops
 
+### Fixed
+
+- Fix tab stop replacement logic to match whole identifiers only
+
 ## [1.0.1] - 2025-07-31
+
+### Fixed
 
 - Fix readme demo.gif
 
