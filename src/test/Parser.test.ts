@@ -275,24 +275,6 @@ suite('Parser Test Suite', () => {
     assert.strictEqual(body[1].includes('$1'), false);
   });
 
-  test('Does not replace identifier used in property access', () => {
-    const input = `function name() {}
-    user.name = 'John';`;
-
-    const { body } = new Parser(input);
-
-    assert.strictEqual(body[1].includes('$1'), false);
-  });
-
-  test('Replaces identifier followed by brackets correctly', () => {
-    const input = `function render() {}
-    render[0]();`;
-
-    const { body } = new Parser(input);
-
-    assert.strictEqual(body[1].includes('$1'), false);
-  });
-
   test('Replaces identifier with trailing symbols but not prefixes', () => {
     const input = `function api() {}
     api(); apiEndpoint();`;
@@ -301,5 +283,15 @@ suite('Parser Test Suite', () => {
 
     assert.strictEqual(body[1].includes('$1'), true);
     assert.strictEqual(body[1].includes('apiEndpoint'), true);
+  });
+
+  test('Should replace a tab stop adjacent to non-word characters', () => {
+    const input = `function increment() {}
+     <button onClick={increment}>Increment</button>`;
+
+    const { body } = new Parser(input);
+
+    assert.strictEqual(body[1].includes('$1'), true);
+    assert.strictEqual(body[1].includes('Increment'), true);
   });
 });

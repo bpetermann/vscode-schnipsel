@@ -155,7 +155,7 @@ export class Parser {
   }
 
   private isWholeWordMatch(item: string, tabStop: string): boolean {
-    return item === tabStop || item.replace(/[^a-zA-Z0-9]/g, '') === tabStop;
+    return new RegExp(`\\b${tabStop}\\b`).test(item);
   }
 
   private isObjectPropertyKey(item: string): boolean {
