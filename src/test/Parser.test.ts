@@ -235,4 +235,71 @@ suite('Parser Test Suite', () => {
 
     assert.strictEqual(body[1].includes('MyFunction'), true);
   });
+
+  test('Does not replace substring inside longer function call', () => {
+    const input = `function foo() {}
+    fooBar()`;
+
+    const { body } = new Parser(input);
+
+    assert.strictEqual(body[1].includes('fooBar'), true);
+    assert.strictEqual(body[1].includes('$1'), false);
+  });
+
+  test('Does not replace identifier inside a longer variable', () => {
+    const input = `function foo() {}
+    const fooExtra = 5;`;
+
+    const { body } = new Parser(input);
+
+    assert.strictEqual(body[1].includes('$1'), false);
+  });
+
+  test('Replaces matching function name but not similar variables', () => {
+    const input = `function fetch() {}
+    const fetched = true;
+    fetch();`;
+
+    const { body } = new Parser(input);
+
+    assert.strictEqual(body[1].includes('fetched'), true);
+    assert.strictEqual(body[2].includes('$1'), true);
+  });
+
+  test('Replaces identifier followed by colon correctly', () => {
+    const input = `function name() {}
+    const obj = { name: 'Foo' };`;
+
+    const { body } = new Parser(input);
+
+    assert.strictEqual(body[1].includes('$1'), false);
+  });
+
+  test('Does not replace identifier used in property access', () => {
+    const input = `function name() {}
+    user.name = 'John';`;
+
+    const { body } = new Parser(input);
+
+    assert.strictEqual(body[1].includes('$1'), false);
+  });
+
+  test('Replaces identifier followed by brackets correctly', () => {
+    const input = `function render() {}
+    render[0]();`;
+
+    const { body } = new Parser(input);
+
+    assert.strictEqual(body[1].includes('$1'), false);
+  });
+
+  test('Replaces identifier with trailing symbols but not prefixes', () => {
+    const input = `function api() {}
+    api(); apiEndpoint();`;
+
+    const { body } = new Parser(input);
+
+    assert.strictEqual(body[1].includes('$1'), true);
+    assert.strictEqual(body[1].includes('apiEndpoint'), true);
+  });
 });
