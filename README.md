@@ -37,12 +37,66 @@ No additional setup required. Works out of the box with VS Code’s built-in sni
 
 ## Release Notes
 
+**v1.0.1**
+
+- Fix readme demo.gif
+
 **v1.0.0**
 
 - Initial release
 - Adds the `Copy Code as Snippet` command
 - Generates intelligent snippets with automatic tab stops
 - Supports TS, JS, JSX, and TSX files
+
+## Code Example
+
+**Input Code:**
+
+```jsx
+import { useState } from 'react';
+
+type CounterProps = {
+  initialCount?: number,
+};
+
+export default function Counter({ initialCount = 0 }: CounterProps) {
+  const [count, setCount] = useState(initialCount);
+
+  function increment() {
+    setCount(count + 1);
+  }
+
+  return <button onClick={increment}>Increment</button>;
+}
+```
+
+**Generated Snippet:**
+
+```json
+{
+  "Snippet from Counter": {
+    "prefix": "Counter",
+    "body": [
+      "import { useState } from 'react';",
+      "",
+      "type $1 = {",
+      "  initialCount?: number;",
+      "};",
+      "",
+      "export default function $2({ initialCount = 0 }: $1) {",
+      "  const [count, setCount] = useState(initialCount);",
+      "",
+      "  function $3() {",
+      "    setCount(count + 1);",
+      "  }",
+      "",
+      "  return <button onClick={$3}>Increment</button>;",
+      "}"
+    ],
+    "description": "Auto-generated typescriptreact snippet from Counter"
+  }
+}
+```
 
 ## Usage Examples
 
@@ -51,6 +105,10 @@ No additional setup required. Works out of the box with VS Code’s built-in sni
 ## Contributing
 
 Contributions are welcome! Feel free to open an issue or pull request on [GitHub](https://github.com/bpetermann/vscode-schnipsel).
+
+## Changelog
+
+To check full changelog click [here](https://github.com/bpetermann/vscode-schnipsel/blob/main/CHANGELOG.md)
 
 ## License
 
