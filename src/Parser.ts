@@ -64,6 +64,10 @@ export class Parser {
     return ++this.nextTabStopId;
   }
 
+  private resetTabStopId(): number {
+    return --this.nextTabStopId;
+  }
+
   private appendProcessedLine(tokens: Tokens): void {
     this.body.push(tokens.join(' '));
   }
@@ -135,6 +139,8 @@ export class Parser {
     if (this.isArrowFunctionPattern(index)) {
       this.registerTabStop(name, tabId);
       this.currentLineTokens[index] = `$${tabId}`;
+    } else {
+      this.resetTabStopId();
     }
   }
 
