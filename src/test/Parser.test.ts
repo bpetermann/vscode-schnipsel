@@ -33,7 +33,31 @@ suite('Parser Test Suite', () => {
 
     const { body } = new Parser(input);
 
-    assert.strictEqual(body[1].includes('$1'), true);
+    assert.strictEqual(body[1], '$1()');
+  });
+
+  test('Replaces two matching function calls with tab stop', () => {
+    const input = `function foo() {}\nfoo() foo()`;
+
+    const { body } = new Parser(input);
+
+    const tabStopCount = body[1]
+      .split(' ')
+      .filter((v) => v.includes('$1')).length;
+
+    assert.strictEqual(tabStopCount, 2);
+  });
+
+  test('Replaces only the first matching function call if whitespace is omitted', () => {
+    const input = `function foo() {}\nfoo()foo()foo()foo()`;
+
+    const { body } = new Parser(input);
+
+    const tabStopCount = body[1]
+      .split('()')
+      .filter((v) => v.includes('$1')).length;
+
+    assert.strictEqual(tabStopCount, 1);
   });
 
   //** Class Declarations & Usage */
@@ -74,8 +98,7 @@ suite('Parser Test Suite', () => {
     const input = `interface Foo`;
 
     const { body } = new Parser(input);
-
-    assert.strictEqual(body[0].includes('$1'), true);
+    assert.strictEqual(body[0].includes('interface ${1:Foo}'), true);
   });
 
   test('Handles spaced interface declaration', () => {
@@ -83,7 +106,7 @@ suite('Parser Test Suite', () => {
 
     const { body } = new Parser(input);
 
-    assert.strictEqual(body[0].includes('$1'), true);
+    assert.strictEqual(body[0].includes('${1:MyInterface}'), true);
   });
 
   test('Replaces type alias name with tab stop', () => {
@@ -91,7 +114,7 @@ suite('Parser Test Suite', () => {
 
     const { body } = new Parser(input);
 
-    assert.strictEqual(body[0].includes('$1'), true);
+    assert.strictEqual(body[0].includes('${1:Bar}'), true);
   });
 
   test('Handles malformed type alias with no name gracefully', () => {
@@ -182,10 +205,10 @@ suite('Parser Test Suite', () => {
 
     const { body } = new Parser(input);
 
-    assert.strictEqual(body[0].includes('$1'), true);
-    assert.strictEqual(body[1].includes('$2'), true);
-    assert.strictEqual(body[2].includes('$3'), true);
-    assert.strictEqual(body[3].includes('$1'), true);
+    assert.strictEqual(body[0].includes('1'), true);
+    assert.strictEqual(body[1].includes('2'), true);
+    assert.strictEqual(body[2].includes('3'), true);
+    assert.strictEqual(body[3].includes('1'), true);
   });
 
   test('Handles multiple distinct tab stops across lines', () => {
@@ -279,5 +302,15 @@ suite('Parser Test Suite', () => {
 
     assert.strictEqual(body[1].includes('$1'), true);
     assert.strictEqual(body[1].includes('Increment'), true);
+  });
+
+  //** Placeholder */
+  test('Replaces tokens while ignoring placeholders', () => {
+    const input = `function Bar(){};\nBar(); type Foo = {};`;
+
+    const { body } = new Parser(input);
+
+    assert.strictEqual(body[1].includes('$1'), true);
+    assert.strictEqual(body[1].includes('${2:Foo}'), true);
   });
 });
