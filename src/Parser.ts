@@ -17,7 +17,7 @@ export class Parser {
   private currentLineIndex: number = 0;
   private nextTabStopId: number = 0;
   private currentLineTokens: Tokens = [];
-  private tabStopMap = new Map<string, number>();
+  private tabStopMap = new Map<string, string>();
 
   private readonly keywordProcessors: Map<KeywordType, KnownProcessorMethod>;
 
@@ -42,6 +42,8 @@ export class Parser {
   private processCurrentLine(): void {
     this.currentLineTokens = this.getCurrentLineTokens();
 
+    this.applyTabStops();
+
     keywords.forEach((key) => {
       if (
         this.currentLineTokens.includes(key.toLowerCase()) &&
@@ -50,8 +52,6 @@ export class Parser {
         this.handleKeywordDeclaration(key);
       }
     });
-
-    this.applyTabStops();
 
     this.appendProcessedLine(this.currentLineTokens);
   }
@@ -72,8 +72,12 @@ export class Parser {
     this.body.push(tokens.join(' '));
   }
 
-  private registerTabStop(name: string, tabId: number) {
-    this.tabStopMap.set(name, tabId);
+  private registerTabStop(name: string, value: string) {
+    this.tabStopMap.set(name, value);
+  }
+
+  private generatePlaceholder(id: number, name: string): string {
+    return `\${${id}:${name}}`;
   }
 
   private handleKeywordDeclaration(key: KeywordType): void {
@@ -115,8 +119,8 @@ export class Parser {
     index: number,
     tabId: number
   ): void {
-    this.registerTabStop(name, tabId);
-    this.currentLineTokens[index] = `$${tabId}`;
+    this.registerTabStop(name, `$${tabId}`);
+    this.currentLineTokens[index] = this.generatePlaceholder(tabId, name);
   }
 
   private processFunction(name: string, index: number, tabId: number): void {
@@ -137,24 +141,25 @@ export class Parser {
 
   private processConst(name: string, index: number, tabId: number): void {
     if (this.isArrowFunctionPattern(index)) {
-      this.registerTabStop(name, tabId);
-      this.currentLineTokens[index] = `$${tabId}`;
+      this.registerTabStop(name, `$${tabId}`);
+      this.currentLineTokens[index] = this.generatePlaceholder(tabId, name);
     } else {
       this.resetTabStopId();
     }
   }
 
   private applyTabStops(): void {
-    const updatedTokens = this.currentLineTokens.map((item) => {
-      for (const [tabStop, id] of this.tabStopMap) {
+    const updatedTokens = this.currentLineTokens.map((item, index) => {
+      for (const [tabStop, value] of this.tabStopMap) {
         if (
           this.isWholeWordMatch(item, tabStop) &&
           !this.isObjectPropertyKey(item) &&
           !this.isStringLiteral(item)
         ) {
-          return item.replace(tabStop, `$${id}`);
+          return item.replace(tabStop, value);
         }
       }
+
       return item;
     });
     this.currentLineTokens = updatedTokens;
@@ -203,11 +208,11 @@ export class Parser {
   ): string {
     if (name.includes(delimiter)) {
       const [func, rest] = name.split(delimiter);
-      this.registerTabStop(func, tabId);
-      return `$${tabId}(${rest}`;
+      this.registerTabStop(func, `$${tabId}`);
+      return this.generatePlaceholder(tabId, func) + `(${rest}`;
     } else {
-      this.registerTabStop(name, tabId);
-      return `$${tabId}`;
+      this.registerTabStop(name, `$${tabId}`);
+      return this.generatePlaceholder(tabId, name);
     }
   }
 }

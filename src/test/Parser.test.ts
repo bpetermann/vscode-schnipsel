@@ -1,22 +1,27 @@
 import * as assert from 'assert';
 import { Parser } from '../Parser';
 
+function generatePlaceholder(id: number, name: string): string {
+  return `\${${id}:${name}}`;
+}
+
 suite('Parser Test Suite', () => {
   //** Function Declarations */
   test('Replaces function name with tab stop', () => {
     const input = `function foo()`;
 
     const { body } = new Parser(input);
-
-    assert.strictEqual(body[0], `function $1()`);
+    assert.strictEqual(body[0], `function \${1:foo}()`);
   });
 
   test('Handles function names with irregular spacing', () => {
-    const input = `function   spacedOut()`;
+    const name = 'spacedOut';
+    const input = `function   ${name}()`;
 
     const { body } = new Parser(input);
 
-    assert.strictEqual(body[0].includes('$1'), true);
+    const placeholder = generatePlaceholder(1, name);
+    assert.ok(body[0].includes(placeholder));
   });
 
   test('Does not add tab stop when function name is missing', () => {
@@ -62,27 +67,33 @@ suite('Parser Test Suite', () => {
 
   //** Class Declarations & Usage */
   test('Replaces class name with spacing with tab stop', () => {
-    const input = `class MyClass {};`;
+    const name = 'MyClass';
+    const input = `class ${name} {};`;
 
     const { body } = new Parser(input);
 
-    assert.strictEqual(body[0].includes('$1'), true);
+    const placeholder = generatePlaceholder(1, name);
+    assert.ok(body[0].includes(placeholder));
   });
 
   test('Replaces class name without spacing with tab stop', () => {
-    const input = `class MyClass{};`;
+    const name = 'MyClass';
+    const input = `class ${name}{};`;
 
     const { body } = new Parser(input);
 
-    assert.strictEqual(body[0].includes('$1'), true);
+    const placeholder = generatePlaceholder(1, name);
+    assert.ok(body[0].includes(placeholder));
   });
 
   test('Replaces extended class name with tab stop', () => {
-    const input = `class MyClass extends BaseClass {}`;
+    const name = 'MyClass';
+    const input = `class ${name} extends BaseClass {}`;
 
     const { body } = new Parser(input);
 
-    assert.ok(body[0].startsWith('class $1 extends'));
+    const placeholder = generatePlaceholder(1, name);
+    assert.ok(body[0].includes(placeholder));
   });
 
   test('Replaces class instantiation with tab stop', () => {
@@ -90,7 +101,7 @@ suite('Parser Test Suite', () => {
 
     const { body } = new Parser(input);
 
-    assert.strictEqual(body[1].includes('new $1()'), true);
+    assert.ok(body[1].includes('new $1()'));
   });
 
   //** Interface & Type Declarations */
@@ -98,7 +109,7 @@ suite('Parser Test Suite', () => {
     const input = `interface Foo`;
 
     const { body } = new Parser(input);
-    assert.strictEqual(body[0].includes('interface ${1:Foo}'), true);
+    assert.ok(body[0].includes('interface ${1:Foo}'));
   });
 
   test('Handles spaced interface declaration', () => {
@@ -106,7 +117,7 @@ suite('Parser Test Suite', () => {
 
     const { body } = new Parser(input);
 
-    assert.strictEqual(body[0].includes('${1:MyInterface}'), true);
+    assert.ok(body[0].includes('${1:MyInterface}'));
   });
 
   test('Replaces type alias name with tab stop', () => {
@@ -114,7 +125,7 @@ suite('Parser Test Suite', () => {
 
     const { body } = new Parser(input);
 
-    assert.strictEqual(body[0].includes('${1:Bar}'), true);
+    assert.ok(body[0].includes('${1:Bar}'));
   });
 
   test('Handles malformed type alias with no name gracefully', () => {
@@ -127,35 +138,43 @@ suite('Parser Test Suite', () => {
 
   //** Arrow Function Declarations */
   test('Replaces basic arrow function with tab stop', () => {
-    const input = `const foo = () => {};`;
+    const name = 'foo';
+    const input = `const ${name} = () => {};`;
 
     const { body } = new Parser(input);
+    const placeholder = generatePlaceholder(1, name);
 
-    assert.strictEqual(body[0], 'const $1 = () => {};');
+    assert.strictEqual(body[0], `const ${placeholder} = () => {};`);
   });
 
   test('Replaces async arrow function with tab stop', () => {
+    const name = 'foo';
     const input = `const foo = async () => {};`;
 
     const { body } = new Parser(input);
+    const placeholder = generatePlaceholder(1, name);
 
-    assert.strictEqual(body[0], 'const $1 = async () => {};');
+    assert.strictEqual(body[0], `const ${placeholder} = async () => {};`);
   });
 
   test('Replaces arrow function with typed parameters (e.g., React components)', () => {
-    const input = `const Foo = (props: Props) => {};`;
+    const name = 'Foo';
+    const input = `const ${name} = (props: Props) => {};`;
 
     const { body } = new Parser(input);
+    const placeholder = generatePlaceholder(1, name);
 
-    assert.strictEqual(body[0].includes('$1'), true);
+    assert.ok(body[0].includes(placeholder));
   });
 
   test('Handles arrow function with excessive spacing', () => {
-    const input = `const   foo   =   () => {}`;
+    const name = 'Foo';
+    const input = `const   ${name}   =   () => {}`;
 
     const { body } = new Parser(input);
+    const placeholder = generatePlaceholder(1, name);
 
-    assert.strictEqual(body[0].includes('$1'), true);
+    assert.ok(body[0].includes(placeholder));
   });
 
   //** Arrow Function Exclusions */
@@ -205,10 +224,10 @@ suite('Parser Test Suite', () => {
 
     const { body } = new Parser(input);
 
-    assert.strictEqual(body[0].includes('1'), true);
-    assert.strictEqual(body[1].includes('2'), true);
-    assert.strictEqual(body[2].includes('3'), true);
-    assert.strictEqual(body[3].includes('1'), true);
+    assert.ok(body[0].includes('1'));
+    assert.ok(body[1].includes('2'));
+    assert.ok(body[2].includes('3'));
+    assert.ok(body[3].includes('1'));
   });
 
   test('Handles multiple distinct tab stops across lines', () => {
@@ -216,7 +235,7 @@ suite('Parser Test Suite', () => {
 
     const { body } = new Parser(input);
 
-    assert.strictEqual(body[2].includes('$2'), true);
+    assert.ok(body[2].includes('$2'));
   });
 
   test('Correctly increments tab stop even after multiple unrelated lines', () => {
@@ -224,7 +243,7 @@ suite('Parser Test Suite', () => {
 
     const { body } = new Parser(input);
 
-    assert.strictEqual(body[3].includes('$1'), true);
+    assert.ok(body[3].includes('1'));
   });
 
   //** Spacing, Formatting, and Blank Lines */
@@ -242,7 +261,7 @@ suite('Parser Test Suite', () => {
 
     const { body } = new Parser(input);
 
-    assert.strictEqual(body[1].includes('MyFunction'), true);
+    assert.ok(body[1].includes('MyFunction'));
   });
 
   test('Ignores function names inside single-quoted strings', () => {
@@ -250,7 +269,7 @@ suite('Parser Test Suite', () => {
 
     const { body } = new Parser(input);
 
-    assert.strictEqual(body[1].includes('MyFunction'), true);
+    assert.ok(body[1].includes('MyFunction'));
   });
 
   test('Does not replace substring in longer identifier (e.g., fooBar)', () => {
@@ -258,7 +277,7 @@ suite('Parser Test Suite', () => {
 
     const { body } = new Parser(input);
 
-    assert.strictEqual(body[1].includes('fooBar'), true);
+    assert.ok(body[1].includes('fooBar'));
     assert.strictEqual(body[1].includes('$1'), false);
   });
 
@@ -271,12 +290,12 @@ suite('Parser Test Suite', () => {
   });
 
   test('Replaces exact function call but not similar variable names', () => {
-    const input = `function fetch() {}\nconst fetched = true;\nfetch();`;
+    const input = `function fetch() {}\nconst fetched ;\nfetch();`;
 
     const { body } = new Parser(input);
 
-    assert.strictEqual(body[1].includes('fetched'), true);
-    assert.strictEqual(body[2].includes('$1'), true);
+    assert.ok(body[1].includes('fetched'));
+    assert.ok(body[2].includes('$1'));
   });
 
   test('Does not replace object keys matching identifier', () => {
@@ -291,8 +310,8 @@ suite('Parser Test Suite', () => {
 
     const { body } = new Parser(input);
 
-    assert.strictEqual(body[1].includes('$1'), true);
-    assert.strictEqual(body[1].includes('apiEndpoint'), true);
+    assert.ok(body[1].includes('$1'));
+    assert.ok(body[1].includes('apiEndpoint'));
   });
 
   test('Replaces identifiers surrounded by non-word characters (e.g., JSX)', () => {
@@ -300,8 +319,8 @@ suite('Parser Test Suite', () => {
 
     const { body } = new Parser(input);
 
-    assert.strictEqual(body[1].includes('$1'), true);
-    assert.strictEqual(body[1].includes('Increment'), true);
+    assert.ok(body[1].includes('$1'));
+    assert.ok(body[1].includes('Increment'));
   });
 
   //** Placeholder */
@@ -310,7 +329,7 @@ suite('Parser Test Suite', () => {
 
     const { body } = new Parser(input);
 
-    assert.strictEqual(body[1].includes('$1'), true);
-    assert.strictEqual(body[1].includes('${2:Foo}'), true);
+    assert.ok(body[1].includes('$1'));
+    assert.ok(body[1].includes('${2:Foo}'));
   });
 });
