@@ -37,6 +37,11 @@ No additional setup required. Works out of the box with VS Code’s built-in sni
 
 ## Release Notes
 
+**v1.1.0**
+
+- Replace class name declarations with tab stops
+- Replace arrow function declarations with tab stops
+
 **v1.0.1**
 
 - Fix readme demo.gif
