@@ -1,4 +1,5 @@
 import { Parser } from './Parser';
+import { Processor } from './Processor';
 import { Snippet } from './Snippet';
 
 export type Tokens = Array<string>;
@@ -22,6 +23,13 @@ export type KnownProcessorMethod = (
   index: number,
   nextIndex: number
 ) => void;
+
+export type ProcessorConstructor = new (
+  tokens: string[],
+  name: string,
+  index: number,
+  tabId: number
+) => Processor;
 
 /**
  * Type definition for a function that creates a Parser instance.

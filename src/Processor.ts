@@ -27,10 +27,12 @@ export class BaseProcessor {
   }
 
   protected normalizeNameWithSuffix(tabId: number, delimiter: string): string {
-    if (this.name.includes(delimiter)) {
-      const [base, rest] = this.name.split(delimiter, 2);
+    const delimiterIndex = this.name.indexOf(delimiter);
+    if (delimiterIndex !== -1) {
+      const base = this.name.slice(0, delimiterIndex);
+      const rest = this.name.slice(delimiterIndex);
       this.name = base;
-      return this.generatePlaceholder(tabId, base) + delimiter + rest;
+      return this.generatePlaceholder(tabId, base) + rest;
     }
     return this.generatePlaceholder(tabId, this.name);
   }
@@ -45,15 +47,6 @@ export class BaseProcessor {
 }
 
 export class DeclarationProcessor extends BaseProcessor implements Processor {
-  constructor(
-    tokens: Array<string>,
-    name: string,
-    index: number,
-    tabId: number
-  ) {
-    super(tokens, name, index, tabId);
-  }
-
   process(): ProcessorOutput {
     this.tokens[this.index] = this.generatePlaceholder(this.tabId, this.name);
     return this.createOutput(this.formatTabStop(this.tabId));
@@ -61,15 +54,6 @@ export class DeclarationProcessor extends BaseProcessor implements Processor {
 }
 
 export class FunctionProcessor extends BaseProcessor implements Processor {
-  constructor(
-    tokens: Array<string>,
-    name: string,
-    index: number,
-    tabId: number
-  ) {
-    super(tokens, name, index, tabId);
-  }
-
   process(): ProcessorOutput {
     this.tokens[this.index] = this.normalizeNameWithSuffix(this.tabId, '(');
     return this.createOutput(this.formatTabStop(this.tabId));
@@ -77,15 +61,6 @@ export class FunctionProcessor extends BaseProcessor implements Processor {
 }
 
 export class ClassProcessor extends BaseProcessor implements Processor {
-  constructor(
-    tokens: Array<string>,
-    name: string,
-    index: number,
-    tabId: number
-  ) {
-    super(tokens, name, index, tabId);
-  }
-
   process(): ProcessorOutput {
     this.tokens[this.index] = this.normalizeNameWithSuffix(this.tabId, '{');
     return this.createOutput(this.formatTabStop(this.tabId));
@@ -93,15 +68,6 @@ export class ClassProcessor extends BaseProcessor implements Processor {
 }
 
 export class ConstProcessor extends BaseProcessor implements Processor {
-  constructor(
-    tokens: Array<string>,
-    name: string,
-    index: number,
-    tabId: number
-  ) {
-    super(tokens, name, index, tabId);
-  }
-
   process(): ProcessorOutput {
     const isArrowFunctionPattern = this.isArrowFunctionPattern(this.index);
 

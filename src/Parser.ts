@@ -1,10 +1,10 @@
 import {
-  EMPTY_TOKEN,
-  keywords,
-  KeywordType,
-  KnownProcessorMethod,
-  Tokens,
-} from './types';
+  ClassProcessor,
+  ConstProcessor,
+  DeclarationProcessor,
+  FunctionProcessor,
+} from './Processor';
+import { keywords, KeywordType, ProcessorConstructor, Tokens } from './types';
 
 /**
  * Parses source code to transform it into a VS Code snippet body format,
@@ -19,16 +19,16 @@ export class Parser {
   private currentLineTokens: Tokens = [];
   private tabStopMap = new Map<string, string>();
 
-  private readonly keywordProcessors: Map<KeywordType, KnownProcessorMethod>;
+  private readonly keywordProcessors: Map<KeywordType, ProcessorConstructor>;
 
   constructor(input: string) {
     this.sourceLines = input.trim().split('\n');
-    this.keywordProcessors = new Map([
-      ['type', this.processGenericDeclaration.bind(this)],
-      ['interface', this.processGenericDeclaration.bind(this)],
-      ['function', this.processFunction.bind(this)],
-      ['class', this.processClass.bind(this)],
-      ['const', this.processConst.bind(this)],
+    this.keywordProcessors = new Map<KeywordType, ProcessorConstructor>([
+      ['type', DeclarationProcessor],
+      ['interface', DeclarationProcessor],
+      ['function', FunctionProcessor],
+      ['class', ClassProcessor],
+      ['const', ConstProcessor],
     ]);
     this.processAllLines();
   }
@@ -56,30 +56,6 @@ export class Parser {
     this.appendProcessedLine(this.currentLineTokens);
   }
 
-  private getCurrentLineTokens(): Tokens {
-    return this.sourceLines[this.currentLineIndex++].split(' ');
-  }
-
-  private generateNextTabStopId(): number {
-    return ++this.nextTabStopId;
-  }
-
-  private resetTabStopId(): number {
-    return --this.nextTabStopId;
-  }
-
-  private appendProcessedLine(tokens: Tokens): void {
-    this.body.push(tokens.join(' '));
-  }
-
-  private registerTabStop(name: string, value: string) {
-    this.tabStopMap.set(name, value);
-  }
-
-  private generatePlaceholder(id: number, name: string): string {
-    return `\${${id}:${name}}`;
-  }
-
   private handleKeywordDeclaration(key: KeywordType): void {
     const keywordIndex = this.currentLineTokens.findIndex((v) => v === key);
     const tokensAfterKeyword = this.currentLineTokens.slice(keywordIndex + 1);
@@ -103,53 +79,32 @@ export class Parser {
 
   private invokeKeywordProcessor(
     key: KeywordType,
-    name: string,
+    keywordName: string,
     nextIndex: number,
     newTabStopId: number
   ): void {
     const processor = this.keywordProcessors.get(key);
 
     if (processor) {
-      processor(name, nextIndex, newTabStopId);
-    }
-  }
+      const { identifier, tokens, tabStop } = new processor(
+        this.currentLineTokens,
+        keywordName,
+        nextIndex,
+        newTabStopId
+      ).process();
 
-  private processGenericDeclaration(
-    name: string,
-    index: number,
-    tabId: number
-  ): void {
-    this.registerTabStop(name, `$${tabId}`);
-    this.currentLineTokens[index] = this.generatePlaceholder(tabId, name);
-  }
+      this.currentLineTokens = tokens;
 
-  private processFunction(name: string, index: number, tabId: number): void {
-    this.currentLineTokens[index] = this.normalizeNameWithSuffix(
-      name,
-      tabId,
-      '('
-    );
-  }
-
-  private processClass(name: string, index: number, tabId: number): void {
-    this.currentLineTokens[index] = this.normalizeNameWithSuffix(
-      name,
-      tabId,
-      '{'
-    );
-  }
-
-  private processConst(name: string, index: number, tabId: number): void {
-    if (this.isArrowFunctionPattern(index)) {
-      this.registerTabStop(name, `$${tabId}`);
-      this.currentLineTokens[index] = this.generatePlaceholder(tabId, name);
-    } else {
-      this.resetTabStopId();
+      if (tabStop) {
+        this.registerTabStop(identifier, tabStop);
+      } else {
+        this.resetTabStopId();
+      }
     }
   }
 
   private applyTabStops(): void {
-    const updatedTokens = this.currentLineTokens.map((item, index) => {
+    const updatedTokens = this.currentLineTokens.map((item) => {
       for (const [tabStop, value] of this.tabStopMap) {
         if (
           this.isWholeWordMatch(item, tabStop) &&
@@ -165,6 +120,30 @@ export class Parser {
     this.currentLineTokens = updatedTokens;
   }
 
+  private getCurrentLineTokens(): Tokens {
+    return this.sourceLines[this.currentLineIndex++].split(' ');
+  }
+
+  private generateNextTabStopId(): number {
+    return ++this.nextTabStopId;
+  }
+
+  /**
+   * Resets the next tab stop ID, typically used when a processor
+   * doesn't generate a tab stop after an ID has been assigned.
+   */
+  private resetTabStopId(): number {
+    return --this.nextTabStopId;
+  }
+
+  private appendProcessedLine(tokens: Tokens): void {
+    this.body.push(tokens.join(' '));
+  }
+
+  private registerTabStop(name: string, value: string) {
+    this.tabStopMap.set(name, value);
+  }
+
   private isWholeWordMatch(item: string, tabStop: string): boolean {
     return new RegExp(`\\b${tabStop}\\b`).test(item);
   }
@@ -178,41 +157,5 @@ export class Parser {
       (item.startsWith("'") && item.endsWith("'")) ||
       (item.startsWith('"') && item.endsWith('"'))
     );
-  }
-
-  private isArrowFunctionPattern(index: number): boolean {
-    const [next, i] = this.peekToken(index + 1);
-    const [afterNext] = this.peekToken(i + 1);
-
-    return next === '=' && (afterNext.startsWith('(') || afterNext === 'async');
-  }
-
-  /**
-   * Returns the next non-empty token and its actual index in the token list.
-   * Skips over empty strings (e.g. from irregular spacing).
-   */
-  private peekToken(startIndex: number): [token: string, index: number] {
-    for (let i = startIndex; i < this.currentLineTokens.length; i++) {
-      const token = this.currentLineTokens[i];
-      if (token.trim() !== EMPTY_TOKEN) {
-        return [token, i];
-      }
-    }
-    return [EMPTY_TOKEN, -1];
-  }
-
-  private normalizeNameWithSuffix(
-    name: string,
-    tabId: number,
-    delimiter: '(' | '{'
-  ): string {
-    if (name.includes(delimiter)) {
-      const [func, rest] = name.split(delimiter);
-      this.registerTabStop(func, `$${tabId}`);
-      return this.generatePlaceholder(tabId, func) + `(${rest}`;
-    } else {
-      this.registerTabStop(name, `$${tabId}`);
-      return this.generatePlaceholder(tabId, name);
-    }
   }
 }
