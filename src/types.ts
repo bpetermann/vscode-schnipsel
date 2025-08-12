@@ -33,12 +33,14 @@ export type ProcessorConstructor = new (
   tokens: string[],
   name: string,
   index: number,
-  tabId: number
+  tabId: number,
+  placeholder: boolean
 ) => Processor;
 
 /**
  * Type definition for a function that creates a Parser instance.
  * @param text The input text for the Parser.
+ * @param config A configuration object, which determines whether placeholders are used.
  */
 export type ParserFactory = (text: string, config: Config) => Parser;
 

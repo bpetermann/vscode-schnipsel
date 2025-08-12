@@ -1,6 +1,8 @@
 /** COMMAND */
+export const EXTENSION = 'schnipsel' as const;
 export const COMMAND = 'schnipsel.copyCodeAsSnippet' as const;
 export const OPEN_SNIPPETS = 'workbench.action.openSnippets' as const;
+export const PLACEHOLDER = 'placeholder' as const;
 
 /** MESSAGES */
 export const MESSAGES = {

@@ -10,7 +10,8 @@ suite('Service Test Suite', () => {
   let showErrorStub: sinon.SinonStub;
   let showInfoStub: sinon.SinonStub;
 
-  const parseFactory = (text: string): Parser => new Parser(text);
+  const parseFactory = (text: string): Parser =>
+    new Parser(text, { placeholder: true });
   const snippetFactory = (
     body: string[],
     language: string,

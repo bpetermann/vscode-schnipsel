@@ -2,11 +2,13 @@ import path from 'path';
 import * as vscode from 'vscode';
 import {
   COMMAND,
+  EXTENSION,
   MESSAGES,
   OPEN_SNIPPETS,
+  PLACEHOLDER,
   SUPPORTED_LANGUAGES,
 } from './constants';
-import { ParserFactory, SnippetFactory } from './types';
+import { Config, ParserFactory, SnippetFactory } from './types';
 
 /**
  * The main service class for the VS Code extension.
@@ -51,19 +53,25 @@ export class Service {
     }
   }
 
+  private generateSnippet(editor: vscode.TextEditor): string {
+    const [language, name] = this.getMeta(editor);
+    const config = this.getConfig();
+    const { body } = this.parseFactory(this.getEditorContent(editor), config);
+    const snippet = this.snippetFactory(body, language, name);
+    return snippet.toString();
+  }
+
+  private getConfig(): Config {
+    const config = vscode.workspace.getConfiguration(EXTENSION);
+    return { placeholder: config.get<boolean>(PLACEHOLDER, true) };
+  }
+
   private getEditorContent(editor: vscode.TextEditor): string {
     const { selection, document } = editor;
 
     return document.getText(
       ...(selection && !selection.isEmpty ? [selection] : [])
     );
-  }
-
-  private generateSnippet(editor: vscode.TextEditor): string {
-    const [language, name] = this.getMeta(editor);
-    const { body } = this.parseFactory(this.getEditorContent(editor));
-    const snippet = this.snippetFactory(body, language, name);
-    return snippet.toString();
   }
 
   private getMeta({ document }: vscode.TextEditor): [string, string] {
