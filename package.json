@@ -32,7 +32,18 @@
     ],
     "activationEvents": [
       "onCommand:schnipsel.copyCodeAsSnippet"
-    ]
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Schnipsel Settings",
+      "properties": {
+        "schnipsel.placeholder": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable the placeholder feature."
+        }
+      }
+    }
   },
   "repository": {
     "type": "git",
