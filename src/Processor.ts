@@ -15,15 +15,19 @@ export class BaseProcessor {
     protected tokens: string[],
     protected name: string,
     protected index: number,
-    protected tabId: number
+    protected tabId: number,
+    protected placeholder: boolean = true
   ) {}
 
-  protected generatePlaceholder(id: number, name: string): string {
-    return `\${${id}:${name}}`;
-  }
-
-  protected formatTabStop(tabId: number): string {
-    return `$${tabId}`;
+  /**
+   * Generates either a tab stop or a placeholder depending on `placeholder`.
+   * If `name` is provided and placeholders are enabled, returns `${tabId:name}`,
+   * otherwise returns `$tabId`.
+   */
+  protected generateTabStopText(tabId: number): string;
+  protected generateTabStopText(tabId: number, name: string): string;
+  protected generateTabStopText(tabId: number, name?: string): string {
+    return name && this.placeholder ? `\${${tabId}:${name}}` : `$${tabId}`;
   }
 
   protected normalizeNameWithSuffix(tabId: number, delimiter: string): string {
@@ -32,9 +36,9 @@ export class BaseProcessor {
       const base = this.name.slice(0, delimiterIndex);
       const rest = this.name.slice(delimiterIndex);
       this.name = base;
-      return this.generatePlaceholder(tabId, base) + rest;
+      return this.generateTabStopText(tabId, base) + rest;
     }
-    return this.generatePlaceholder(tabId, this.name);
+    return this.generateTabStopText(tabId, this.name);
   }
 
   protected createOutput(tabStop: string | null): ProcessorOutput {
@@ -48,22 +52,22 @@ export class BaseProcessor {
 
 export class DeclarationProcessor extends BaseProcessor implements Processor {
   process(): ProcessorOutput {
-    this.tokens[this.index] = this.generatePlaceholder(this.tabId, this.name);
-    return this.createOutput(this.formatTabStop(this.tabId));
+    this.tokens[this.index] = this.generateTabStopText(this.tabId, this.name);
+    return this.createOutput(this.generateTabStopText(this.tabId));
   }
 }
 
 export class FunctionProcessor extends BaseProcessor implements Processor {
   process(): ProcessorOutput {
     this.tokens[this.index] = this.normalizeNameWithSuffix(this.tabId, '(');
-    return this.createOutput(this.formatTabStop(this.tabId));
+    return this.createOutput(this.generateTabStopText(this.tabId));
   }
 }
 
 export class ClassProcessor extends BaseProcessor implements Processor {
   process(): ProcessorOutput {
     this.tokens[this.index] = this.normalizeNameWithSuffix(this.tabId, '{');
-    return this.createOutput(this.formatTabStop(this.tabId));
+    return this.createOutput(this.generateTabStopText(this.tabId));
   }
 }
 
@@ -72,11 +76,11 @@ export class ConstProcessor extends BaseProcessor implements Processor {
     const isArrowFunctionPattern = this.isArrowFunctionPattern(this.index);
 
     if (isArrowFunctionPattern) {
-      this.tokens[this.index] = this.generatePlaceholder(this.tabId, this.name);
+      this.tokens[this.index] = this.generateTabStopText(this.tabId, this.name);
     }
 
     return this.createOutput(
-      isArrowFunctionPattern ? this.formatTabStop(this.tabId) : null
+      isArrowFunctionPattern ? this.generateTabStopText(this.tabId) : null
     );
   }
 
