@@ -4,7 +4,13 @@ import {
   DeclarationProcessor,
   FunctionProcessor,
 } from './Processor';
-import { keywords, KeywordType, ProcessorConstructor, Tokens } from './types';
+import {
+  Config,
+  keywords,
+  KeywordType,
+  ProcessorConstructor,
+  Tokens,
+} from './types';
 
 /**
  * Parses source code to transform it into a VS Code snippet body format,
@@ -21,7 +27,7 @@ export class Parser {
 
   private readonly keywordProcessors: Map<KeywordType, ProcessorConstructor>;
 
-  constructor(input: string) {
+  constructor(input: string, private readonly config: Config) {
     this.sourceLines = input.trim().split('\n');
     this.keywordProcessors = new Map<KeywordType, ProcessorConstructor>([
       ['type', DeclarationProcessor],
@@ -90,7 +96,8 @@ export class Parser {
         this.currentLineTokens,
         keywordName,
         nextIndex,
-        newTabStopId
+        newTabStopId,
+        this.config.placeholder
       ).process();
 
       this.currentLineTokens = tokens;
