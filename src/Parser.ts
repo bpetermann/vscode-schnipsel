@@ -4,6 +4,7 @@ import {
   DeclarationProcessor,
   FunctionProcessor,
 } from './Processor';
+import { TabStopReplacer } from './Replacer';
 import { TabStop } from './TabStop';
 import {
   Config,
@@ -49,7 +50,12 @@ export class Parser {
   private processCurrentLine(): void {
     this.currentLineTokens = this.getCurrentLineTokens();
 
-    this.applyTabStops();
+    const replacer = new TabStopReplacer(
+      this.currentLineTokens,
+      this.tabStopMap
+    );
+
+    this.currentLineTokens = replacer.apply();
 
     keywords.forEach((key) => {
       if (
@@ -110,37 +116,12 @@ export class Parser {
     }
   }
 
-  private applyTabStops(): void {
-    const updatedTokens = this.currentLineTokens.map((item) => {
-      for (const [tabStop, value] of this.tabStopMap) {
-        if (
-          this.isWholeWordMatch(item, tabStop) &&
-          !this.isObjectPropertyKey(item) &&
-          !this.isStringLiteral(item)
-        ) {
-          return item.replace(tabStop, value);
-        }
-      }
-
-      return item;
-    });
-    this.currentLineTokens = updatedTokens;
-  }
-
   private getCurrentLineTokens(): Tokens {
     return this.sourceLines[this.currentLineIndex++].split(' ');
   }
 
   private generateNextTabStopId(): number {
     return ++this.nextTabStopId;
-  }
-
-  /**
-   * Resets the next tab stop ID, typically used when a processor
-   * doesn't generate a tab stop after an ID has been assigned.
-   */
-  private resetTabStopId(): number {
-    return --this.nextTabStopId;
   }
 
   private appendProcessedLine(tokens: Tokens): void {
@@ -151,18 +132,11 @@ export class Parser {
     this.tabStopMap.set(name, value);
   }
 
-  private isWholeWordMatch(item: string, tabStop: string): boolean {
-    return new RegExp(`\\b${tabStop}\\b`).test(item);
-  }
-
-  private isObjectPropertyKey(item: string): boolean {
-    return item.endsWith(':');
-  }
-
-  private isStringLiteral(item: string): item is `"${string}"` | `'${string}'` {
-    return (
-      (item.startsWith("'") && item.endsWith("'")) ||
-      (item.startsWith('"') && item.endsWith('"'))
-    );
+  /**
+   * Resets the next tab stop ID, typically used when a processor
+   * doesn't generate a tab stop after an ID has been assigned.
+   */
+  private resetTabStopId(): number {
+    return --this.nextTabStopId;
   }
 }
