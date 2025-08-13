@@ -1,5 +1,6 @@
 import * as assert from 'assert';
 import { DeclarationProcessor } from '../Processor';
+import { TabStop } from '../TabStop';
 
 const TAB_ID = 1;
 const TYPE_NAME = 'MyType';
@@ -9,59 +10,51 @@ suite('DeclarationProcessor Test Suite', () => {
     const inputTokens = ['type', TYPE_NAME];
     const index = 1;
 
-    const { tokens, identifier, tabStop } = new DeclarationProcessor(
+    const { tokens, tabStop } = new DeclarationProcessor(
       inputTokens.slice(),
-      TYPE_NAME,
-      index,
-      TAB_ID
+      new TabStop(TYPE_NAME, index, TAB_ID)
     ).process();
 
     assert.strictEqual(tokens[1], '${1:MyType}');
-    assert.strictEqual(identifier, TYPE_NAME);
-    assert.strictEqual(tabStop, '$1');
+    assert.strictEqual(tabStop.name, TYPE_NAME);
+    assert.strictEqual(tabStop.value, '$1');
   });
 
   test('Handles declaration names with special characters', () => {
     const inputTokens = ['type', 'My_Type'];
-    const name = inputTokens[1];
     const index = 1;
+    const name = inputTokens[index];
 
-    const { tokens, identifier } = new DeclarationProcessor(
+    const { tokens, tabStop } = new DeclarationProcessor(
       inputTokens.slice(),
-      name,
-      index,
-      TAB_ID
+      new TabStop(name, index, TAB_ID)
     ).process();
 
     assert.strictEqual(tokens[1], '${1:My_Type}');
-    assert.strictEqual(identifier, 'My_Type');
+    assert.strictEqual(tabStop.name, 'My_Type');
   });
 
   test('Handles single-token declarations', () => {
     const inputTokens = [TYPE_NAME];
     const index = 0;
 
-    const { tokens, identifier } = new DeclarationProcessor(
+    const { tokens, tabStop } = new DeclarationProcessor(
       inputTokens.slice(),
-      TYPE_NAME,
-      index,
-      TAB_ID
+      new TabStop(TYPE_NAME, index, TAB_ID)
     ).process();
 
     assert.strictEqual(tokens[0], '${1:MyType}');
-    assert.strictEqual(identifier, TYPE_NAME);
+    assert.strictEqual(tabStop.name, TYPE_NAME);
   });
 
   test('Replaces only the target index', () => {
     const inputTokens = ['type', 'A', 'type', 'B'];
-    const name = inputTokens[3];
     const index = 3;
+    const name = inputTokens[index];
 
     const { tokens } = new DeclarationProcessor(
       inputTokens.slice(),
-      name,
-      index,
-      TAB_ID
+      new TabStop(name, index, TAB_ID)
     ).process();
 
     assert.strictEqual(tokens[1], 'A');
@@ -74,9 +67,7 @@ suite('DeclarationProcessor Test Suite', () => {
 
     const { tokens } = new DeclarationProcessor(
       inputTokens.slice(),
-      TYPE_NAME,
-      index,
-      TAB_ID
+      new TabStop(TYPE_NAME, index, TAB_ID)
     ).process();
 
     assert.deepStrictEqual(tokens[0], inputTokens[0]);
