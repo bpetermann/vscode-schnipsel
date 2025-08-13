@@ -6,9 +6,13 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+### Added
+
+-Option to configure between `TabStop` and `Placeholder`
+
 ### Changed
 
-- Changed tabstop to placeholder
+- Changed default keyword replacement to `Placeholder`
 
 ## [1.1.0] - 2025-08-07
 
