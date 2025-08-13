@@ -19,7 +19,8 @@
     "code",
     "productivity",
     "javascript",
-    "typescript"
+    "typescript",
+    "typescriptreact"
   ],
   "activationEvents": [],
   "main": "./dist/extension.js",
