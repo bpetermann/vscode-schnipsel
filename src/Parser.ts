@@ -4,6 +4,7 @@ import {
   DeclarationProcessor,
   FunctionProcessor,
 } from './Processor';
+import { TabStop } from './TabStop';
 import {
   Config,
   keywords,
@@ -71,39 +72,38 @@ export class Parser {
       return;
     }
 
-    const nameTokenIndex = keywordIndex + 1 + nameOffsetInSlice;
-    const declaredName = this.currentLineTokens[nameTokenIndex];
-    const newTabStopId = this.generateNextTabStopId();
+    const variableIndex = keywordIndex + 1 + nameOffsetInSlice;
+    const variable = this.currentLineTokens[variableIndex];
 
-    this.invokeKeywordProcessor(
-      key,
-      declaredName,
-      nameTokenIndex,
-      newTabStopId
-    );
+    this.invokeKeywordProcessor(key, variable, variableIndex);
   }
 
   private invokeKeywordProcessor(
     key: KeywordType,
-    keywordName: string,
-    nextIndex: number,
-    newTabStopId: number
+    variable: string,
+    variableIndex: number
   ): void {
     const processor = this.keywordProcessors.get(key);
 
     if (processor) {
-      const { identifier, tokens, tabStop } = new processor(
-        this.currentLineTokens,
-        keywordName,
-        nextIndex,
+      const newTabStopId = this.generateNextTabStopId();
+
+      const ts = new TabStop(
+        variable,
+        variableIndex,
         newTabStopId,
         this.config.placeholder
+      );
+
+      const { tokens, tabStop } = new processor(
+        this.currentLineTokens,
+        ts
       ).process();
 
       this.currentLineTokens = tokens;
 
-      if (tabStop) {
-        this.registerTabStop(identifier, tabStop);
+      if (tabStop.shouldRegister()) {
+        this.registerTabStop(tabStop.name, tabStop.value);
       } else {
         this.resetTabStopId();
       }
