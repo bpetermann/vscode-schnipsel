@@ -10,6 +10,7 @@ import {
   Config,
   keywords,
   KeywordType,
+  Language,
   ProcessorConstructor,
   Tokens,
 } from './types';
@@ -29,7 +30,11 @@ export class Parser {
 
   private readonly keywordProcessors: Map<KeywordType, ProcessorConstructor>;
 
-  constructor(input: string, private readonly config: Config) {
+  constructor(
+    input: string,
+    private readonly config: Config,
+    private readonly language: Language
+  ) {
     this.sourceLines = input.trim().split('\n');
     this.keywordProcessors = new Map<KeywordType, ProcessorConstructor>([
       ['type', DeclarationProcessor],
@@ -103,7 +108,8 @@ export class Parser {
 
       const { tokens, tabStop } = new processor(
         this.currentLineTokens,
-        ts
+        ts,
+        this.language
       ).process();
 
       this.currentLineTokens = tokens;

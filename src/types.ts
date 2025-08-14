@@ -1,3 +1,4 @@
+import { SUPPORTED_LANGUAGES } from './constants';
 import { Parser } from './Parser';
 import { Processor } from './Processor';
 import { Snippet } from './Snippet';
@@ -17,6 +18,8 @@ export const keywords = [
 
 export type KeywordType = (typeof keywords)[number];
 
+export type Language = (typeof SUPPORTED_LANGUAGES)[number];
+
 export interface Config {
   placeholder: boolean;
 }
@@ -24,20 +27,27 @@ export interface Config {
 /**
  * Constructor signature for any class that implements the {@link Processor} interface.
  * @param tokens The array of tokenized source code that the processor will mutate in place.
- * @param tabStop A TabStop instance containing metadata and formatting logic for the target name token (its text, position, tab stop ID, and whether to use a placeholder).
+ * @param tabStop A TabStop instance containing metadata and formatting logic for the target name token.
+ * @param language The ID of the language used, determined by the file extension (e.g. "typescript").
  * @returns A processor instance ready to process the provided tokens.
  */
 export type ProcessorConstructor = new (
   tokens: string[],
-  tabStop: TabStop
+  tabStop: TabStop,
+  language: Language
 ) => Processor;
 
 /**
  * Type definition for a function that creates a Parser instance.
  * @param text The input text for the Parser.
  * @param config A configuration object, which determines whether placeholders are used.
+ * @param language The ID of the language used, determined by the file extension (e.g. "typescript").
  */
-export type ParserFactory = (text: string, config: Config) => Parser;
+export type ParserFactory = (
+  text: string,
+  config: Config,
+  language: Language
+) => Parser;
 
 /**
  * Type definition for a function that creates a Snippet instance.

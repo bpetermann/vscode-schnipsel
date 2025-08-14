@@ -26,4 +26,4 @@ export const SUPPORTED_LANGUAGES = [
   'javascriptreact',
   'javascript',
   'typescript',
-];
+] as const;
