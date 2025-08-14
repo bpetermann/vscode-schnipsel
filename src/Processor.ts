@@ -1,14 +1,19 @@
 import { TabStop } from './TabStop';
-import { EMPTY_TOKEN } from './types';
+import { EMPTY_TOKEN, Language } from './types';
 
 export interface Processor {
   tokens: string[];
   tabStop: TabStop;
+  readonly language?: Language;
   process(): this;
 }
 
 export class BaseProcessor {
-  constructor(public tokens: string[], public tabStop: TabStop) {}
+  constructor(
+    public tokens: string[],
+    public tabStop: TabStop,
+    readonly language: Language
+  ) {}
 
   /**
    * Splits a variable name into a base name and a suffix based on a given delimiter.

@@ -8,7 +8,7 @@ import {
   PLACEHOLDER,
   SUPPORTED_LANGUAGES,
 } from './constants';
-import { Config, ParserFactory, SnippetFactory } from './types';
+import { Config, Language, ParserFactory, SnippetFactory } from './types';
 
 /**
  * The main service class for the VS Code extension.
@@ -56,7 +56,12 @@ export class Service {
   private generateSnippet(editor: vscode.TextEditor): string {
     const [language, name] = this.getMeta(editor);
     const config = this.getConfig();
-    const { body } = this.parseFactory(this.getEditorContent(editor), config);
+
+    const { body } = this.parseFactory(
+      this.getEditorContent(editor),
+      config,
+      language
+    );
     const snippet = this.snippetFactory(body, language, name);
     return snippet.toString();
   }
@@ -74,8 +79,8 @@ export class Service {
     );
   }
 
-  private getMeta({ document }: vscode.TextEditor): [string, string] {
-    const language = document.languageId;
+  private getMeta({ document }: vscode.TextEditor): [Language, string] {
+    const language = document.languageId as Language;
     const filename = path.parse(document.uri.fsPath).name;
 
     return [language, filename];
@@ -94,7 +99,7 @@ export class Service {
   }
 
   private isSupported(editor: vscode.TextEditor): boolean {
-    return SUPPORTED_LANGUAGES.includes(editor.document.languageId);
+    return SUPPORTED_LANGUAGES.includes(editor.document.languageId as Language);
   }
 
   private showError(message: string): void {
