@@ -33,7 +33,7 @@ export class Parser {
   constructor(
     input: string,
     private readonly config: Config,
-    private readonly language: Language
+    private readonly language?: Language
   ) {
     this.sourceLines = input.trim().split('\n');
     this.keywordProcessors = new Map<KeywordType, ProcessorConstructor>([
