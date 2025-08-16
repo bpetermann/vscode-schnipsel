@@ -11,7 +11,7 @@ suite('Service Test Suite', () => {
   let showInfoStub: sinon.SinonStub;
 
   const parseFactory = (text: string): Parser =>
-    new Parser(text, { placeholder: true });
+    new Parser(text, { placeholder: true }, 'typescript');
   const snippetFactory = (
     body: string[],
     language: string,

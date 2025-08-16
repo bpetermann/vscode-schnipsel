@@ -12,7 +12,7 @@ export class BaseProcessor {
   constructor(
     public tokens: string[],
     public tabStop: TabStop,
-    readonly language: Language
+    readonly language?: Language
   ) {}
 
   /**

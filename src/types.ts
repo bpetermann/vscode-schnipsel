@@ -34,7 +34,7 @@ export interface Config {
 export type ProcessorConstructor = new (
   tokens: string[],
   tabStop: TabStop,
-  language: Language
+  language?: Language
 ) => Processor;
 
 /**
@@ -46,7 +46,7 @@ export type ProcessorConstructor = new (
 export type ParserFactory = (
   text: string,
   config: Config,
-  language: Language
+  language?: Language
 ) => Parser;
 
 /**
