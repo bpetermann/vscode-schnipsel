@@ -99,3 +99,48 @@ export class ConstProcessor extends BaseProcessor implements Processor {
     return isAssignment && isArrowStart;
   }
 }
+
+export class ImportProcessor extends BaseProcessor implements Processor {
+  process(): this {
+    const isDefaultImportSyntax = this.isDefaultImportSyntax();
+
+    if (isDefaultImportSyntax) {
+      this.tokens[this.tabStop.index] = this.tabStop.placeholder;
+      this.replaceFileNameWithTabStop();
+    } else {
+      this.tabStop.disable();
+    }
+
+    return this;
+  }
+
+  private isDefaultImportSyntax(): boolean {
+    if (!['typescriptreact', 'javascriptreact'].includes(this.language ?? '')) {
+      return false;
+    }
+
+    // Skip "React from 'react'"
+    if (this.tabStop.name === 'React') {
+      return false;
+    }
+
+    const [next] = this.peekToken(this.tabStop.index + 1);
+
+    if (next !== 'from') {
+      return false;
+    }
+
+    return true;
+  }
+
+  private replaceFileNameWithTabStop(): void {
+    const fromIndex = this.tokens.indexOf('from');
+    if (fromIndex !== -1 && fromIndex + 1 < this.tokens.length) {
+      const fileTokenIndex = fromIndex + 1;
+      this.tokens[fileTokenIndex] = this.tokens[fileTokenIndex].replace(
+        this.tabStop.name,
+        this.tabStop.value
+      );
+    }
+  }
+}
