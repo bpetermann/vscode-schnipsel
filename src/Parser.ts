@@ -3,6 +3,7 @@ import {
   ConstProcessor,
   DeclarationProcessor,
   FunctionProcessor,
+  ImportProcessor,
 } from './Processor';
 import { TabStopReplacer } from './Replacer';
 import { TabStop } from './TabStop';
@@ -42,6 +43,7 @@ export class Parser {
       ['function', FunctionProcessor],
       ['class', ClassProcessor],
       ['const', ConstProcessor],
+      ['import', ImportProcessor],
     ]);
     this.processAllLines();
   }
