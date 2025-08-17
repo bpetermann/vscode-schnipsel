@@ -8,7 +8,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Added
 
--Option to configure between `TabStop` and `Placeholder`
+- Option to configure between `TabStop` and `Placeholder`
+- Replace default component import in `javascriptreact` and `typescriptreact`
 
 ### Changed
 
@@ -18,7 +19,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Added
 
-- Replace class name declarations with tab stops
+- Replace `class` name declarations with tab stops
 - Replace arrow function declarations with tab stops
 
 ### Fixed
