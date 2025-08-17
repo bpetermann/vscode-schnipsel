@@ -14,6 +14,7 @@ export const keywords = [
   'interface',
   'class',
   'const',
+  'import',
 ] as const;
 
 export type KeywordType = (typeof keywords)[number];
