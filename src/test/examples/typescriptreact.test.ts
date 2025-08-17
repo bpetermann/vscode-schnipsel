@@ -9,7 +9,7 @@ suite('Typescriptreact Test Suite', () => {
     const input = `import { useState } from 'react';\ntype CounterProps = {\ninitialCount?: number;\n};\nexport default function Counter({ initialCount = 0 }: CounterProps) {\nconst [count, setCount] = useState(initialCount);\nfunction increment() {\nsetCount(count + 1);\n}\nreturn <button onClick={increment}>Increment</button>;\n}
 `;
 
-    const { body } = new Parser(input, config);
+    const { body } = new Parser(input, config, 'typescriptreact');
 
     assert.deepStrictEqual(body, [
       "import { useState } from 'react';",
