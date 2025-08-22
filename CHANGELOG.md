@@ -6,6 +6,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.2.0] - 2025-08-25
+
 ### Added
 
 - Option to configure between `TabStop` and `Placeholder`
