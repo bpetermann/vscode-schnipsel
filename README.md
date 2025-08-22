@@ -58,8 +58,6 @@ No additional setup required. Works out of the box with VS Code’s built-in sni
 
 **v1.2.0**
 
-## v1.2.0
-
 - Adds configuration setting `"schnipsel.placeholder"` to choose between **TabStop** and **Placeholder** replacement:
   - `"schnipsel.placeholder": true` → Uses **placeholders** (default)
   - `"schnipsel.placeholder": false` → Uses plain **tab stops**
