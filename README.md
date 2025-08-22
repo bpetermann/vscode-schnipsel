@@ -37,6 +37,12 @@ No additional setup required. Works out of the box with VS Code’s built-in sni
 
 ## Release Notes
 
+**v1.2.0**
+
+- Adds option to configure between `TabStop` and `Placeholder`
+- Replaces default component import in `javascriptreact` and `typescriptreact`
+- Changes default keyword replacement to `Placeholder`
+
 **v1.1.0**
 
 - Replace class name declarations with tab stops
