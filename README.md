@@ -11,6 +11,7 @@ This extension adds the command **Copy Code as Snippet** to your Command Palette
 - **Command Integration**: Adds `Copy Code as Snippet` to the Command Palette.
 - **Intelligent Snippet Generation**: Converts code into a snippet while preserving spacing and indentation.
 - **Smart Tab Stops**: Replaces key symbols like function names, interfaces, and types with tab stops for quick editing.
+- **Configurable Replacement Style**: Choose between _tab stops_ or _placeholders_ for snippet generation.
 
 ## Usage
 
@@ -19,6 +20,24 @@ This extension adds the command **Copy Code as Snippet** to your Command Palette
 3. **Paste your snippet**: A success message appears. Click `Open` to jump to your snippets file and paste it in.
 4. **Customize**: Edit the snippet’s name, prefix, or body if needed.
 5. **Done!** Your snippet is ready to use.
+
+## Configuration
+
+Schnipsel lets you configure how identifiers are replaced in generated snippets:
+
+- **Tab Stop mode** → Inserts `$1`, `$2`, … for quick navigation.
+- **Placeholder mode** (default) → Inserts `${1:MyComponent}` so the original name is visible but editable.
+
+You can change this behavior via your VS Code **User Settings** (`settings.json`):
+
+```jsonc
+{
+  "schnipsel.placeholder": true // default
+}
+```
+
+- `true` → Use placeholders (e.g. `${1:MyComponent}`)
+- `false` → Use plain tab stops (e.g. `$1`)
 
 ## Requirements & Supported Languages
 
@@ -39,9 +58,13 @@ No additional setup required. Works out of the box with VS Code’s built-in sni
 
 **v1.2.0**
 
-- Adds option to configure between `TabStop` and `Placeholder`
+## v1.2.0
+
+- Adds configuration setting `"schnipsel.placeholder"` to choose between **TabStop** and **Placeholder** replacement:
+  - `"schnipsel.placeholder": true` → Uses **placeholders** (default)
+  - `"schnipsel.placeholder": false` → Uses plain **tab stops**
 - Replaces default component import in `javascriptreact` and `typescriptreact`
-- Changes default keyword replacement to `Placeholder`
+- Changes default keyword replacement to **Placeholder**
 
 **v1.1.0**
 
@@ -90,14 +113,14 @@ export default function Counter({ initialCount = 0 }: CounterProps) {
     "body": [
       "import { useState } from 'react';",
       "",
-      "type $1 = {",
+      "type ${1:CounterProps} = {",
       "  initialCount?: number;",
       "};",
       "",
-      "export default function $2({ initialCount = 0 }: $1) {",
+      "export default function ${2:Counter}({ initialCount = 0 }: $1) {",
       "  const [count, setCount] = useState(initialCount);",
       "",
-      "  function $3() {",
+      "  function ${3:increment}() {",
       "    setCount(count + 1);",
       "  }",
       "",
