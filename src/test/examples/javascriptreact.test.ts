@@ -5,7 +5,7 @@ import { Config } from '../../types';
 const config: Config = { placeholder: true };
 
 suite('JavaScript React Test Suite', () => {
-  test('Functional component with state and event handler', () => {
+  test('Complete Example', () => {
     const input = `import { useState } from 'react';\nconst MyComponent = () => {\nconst [count, setCount] = useState(0);\nconst handleClick = () => {\nsetCount(count + 1);\n};\nreturn <button onClick={handleClick}>Click</button>;\n};
 `;
     const { body } = new Parser(input, config, 'javascriptreact');

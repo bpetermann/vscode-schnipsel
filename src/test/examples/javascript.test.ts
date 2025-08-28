@@ -5,7 +5,7 @@ import { Config } from '../../types';
 const config: Config = { placeholder: true };
 
 suite('JavaScript Test Suite', () => {
-  test('Standard function with variable declaration', () => {
+  test('Complete Example', () => {
     const input = `function calculateSum(a, b) {\nconst result = a + b;\nreturn result;\n}
 `;
     const { body } = new Parser(input, config, 'javascript');

@@ -4,8 +4,8 @@ import { Config } from '../../types';
 
 const config: Config = { placeholder: true };
 
-suite('JavaScript React Test Suite', () => {
-  test('Functional component with state and event handler', () => {
+suite('Storybook Test Suite', () => {
+  test('Complete Example', () => {
     const input = `import { Meta, StoryObj } from '@storybook/nextjs';\nimport Button from './Button';\nconst meta: Meta<typeof Button> = {\ncomponent: Button,\nargs: {\ntype: 'primary',\nlabel: 'Button',\n},\nargTypes: {},\n} satisfies Meta<typeof Button>;\nexport default meta;\ntype Story = StoryObj<typeof meta>;\nexport const Primary: Story = {};`;
 
     const { body } = new Parser(input, config, 'typescriptreact');
