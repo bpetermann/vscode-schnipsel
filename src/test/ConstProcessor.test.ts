@@ -123,4 +123,71 @@ suite('ConstProcessor Test Suite', () => {
 
     assert.strictEqual(tabStop.id, null);
   });
+
+  test('Replaces context name with a placeholder', () => {
+    const inputTokens = [
+      'const',
+      FUNCTION_NAME,
+      '=',
+      'createContext<ThemeContextValue',
+      '|',
+      'null>(null)',
+    ];
+    const index = 1;
+
+    const { tokens } = new ConstProcessor(
+      inputTokens.slice(),
+      new TabStop(FUNCTION_NAME, index, TAB_ID),
+      'typescriptreact'
+    ).process();
+
+    assert.strictEqual(tokens[1], '${1:foo}');
+  });
+
+  test('Replaces forwardRef name with a placeholder', () => {
+    const inputTokens = [
+      'const',
+      FUNCTION_NAME,
+      '=',
+      'forwardRef<HTMLButtonElement, ButtonProps>(',
+      '(',
+      'props,',
+      'ref)',
+      '=>',
+      '{',
+      '...})',
+    ];
+    const index = 1;
+
+    const { tokens } = new ConstProcessor(
+      inputTokens.slice(),
+      new TabStop(FUNCTION_NAME, index, TAB_ID),
+      'typescriptreact'
+    ).process();
+
+    assert.strictEqual(tokens[1], '${1:foo}');
+  });
+
+  test('Replaces lazy name with a placeholder', () => {
+    const inputTokens = [
+      'const',
+      FUNCTION_NAME,
+      '=',
+      'lazy(',
+      '()',
+      '=>',
+      'import(',
+      "'./MyComponent')",
+      ')',
+    ];
+    const index = 1;
+
+    const { tokens } = new ConstProcessor(
+      inputTokens.slice(),
+      new TabStop(FUNCTION_NAME, index, TAB_ID),
+      'typescriptreact'
+    ).process();
+
+    assert.strictEqual(tokens[1], '${1:foo}');
+  });
 });
