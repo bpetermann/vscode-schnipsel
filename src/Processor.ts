@@ -1,8 +1,8 @@
 import { TabStop } from './TabStop';
-import { EMPTY_TOKEN, Language } from './types';
+import { EMPTY_TOKEN, Language, Tokens } from './types';
 
 export interface Processor {
-  tokens: string[];
+  tokens: Tokens;
   tabStop: TabStop;
   readonly language?: Language;
   process(): this;
@@ -10,7 +10,7 @@ export interface Processor {
 
 export class BaseProcessor {
   constructor(
-    public tokens: string[],
+    public tokens: Tokens,
     public tabStop: TabStop,
     readonly language?: Language
   ) {}
@@ -49,11 +49,23 @@ export class BaseProcessor {
     }
     return [EMPTY_TOKEN, -1];
   }
+
+  /** Replace the current tab stop token with its placeholder. */
+  protected replaceWithPlaceholder(additionalText: string = ''): void {
+    this.tokens[this.tabStop.index] = this.tabStop.placeholder + additionalText;
+  }
+
+  /** Check if the current language is React-flavored (TSX or JSX). */
+  protected isReact(): boolean {
+    return (
+      this.language === 'typescriptreact' || this.language === 'javascriptreact'
+    );
+  }
 }
 
 export class DeclarationProcessor extends BaseProcessor implements Processor {
   process(): this {
-    this.tokens[this.tabStop.index] = this.tabStop.placeholder;
+    this.replaceWithPlaceholder();
     return this;
   }
 }
@@ -62,7 +74,7 @@ export class FunctionProcessor extends BaseProcessor implements Processor {
   process(): this {
     const [name, rest] = this.normalizeNameWithSuffix('(', this.tabStop.name);
     this.tabStop.name = name;
-    this.tokens[this.tabStop.index] = this.tabStop.placeholder + rest;
+    this.replaceWithPlaceholder(rest);
     return this;
   }
 }
@@ -71,41 +83,71 @@ export class ClassProcessor extends BaseProcessor implements Processor {
   process(): this {
     const [name, rest] = this.normalizeNameWithSuffix('{', this.tabStop.name);
     this.tabStop.name = name;
-    this.tokens[this.tabStop.index] = this.tabStop.placeholder + rest;
+    this.replaceWithPlaceholder(rest);
     return this;
   }
 }
 
 export class ConstProcessor extends BaseProcessor implements Processor {
+  private patterns: Array<(next: string) => boolean> = [
+    this.isArrowFunctionPattern,
+    this.isContextName,
+    this.isForwardRef,
+    this.isMemo,
+    this.isLazy,
+  ];
+
   process(): this {
-    const isArrowFunctionPattern = this.isArrowFunctionPattern();
-
-    if (isArrowFunctionPattern) {
-      this.tokens[this.tabStop.index] = this.tabStop.placeholder;
-    } else {
-      this.tabStop.disable();
-    }
-
+    this.ensureAssignment();
     return this;
   }
 
-  private isArrowFunctionPattern(): boolean {
+  private ensureAssignment(): void {
     const [next, nextIndex] = this.peekToken(this.tabStop.index + 1);
-    const [afterNext] = this.peekToken(nextIndex + 1);
 
-    const isAssignment = next === '=';
-    const isArrowStart = afterNext.startsWith('(') || afterNext === 'async';
+    if (next !== '=') {
+      this.tabStop.disable();
+      return;
+    }
 
-    return isAssignment && isArrowStart;
+    this.checkPattern(nextIndex);
+  }
+
+  private checkPattern(index: number): void {
+    const [afterNext] = this.peekToken(index + 1);
+
+    if (this.patterns.some((fn) => fn.call(this, afterNext))) {
+      this.replaceWithPlaceholder();
+    } else {
+      this.tabStop.disable();
+    }
+  }
+
+  private isArrowFunctionPattern(next: string): boolean {
+    return next.startsWith('(') || next === 'async';
+  }
+
+  private isContextName(next: string): boolean {
+    return this.isReact() && next.startsWith('createContext');
+  }
+
+  private isForwardRef(next: string): boolean {
+    return this.isReact() && next.startsWith('forwardRef');
+  }
+
+  private isMemo(next: string): boolean {
+    return this.isReact() && next.startsWith('memo');
+  }
+
+  private isLazy(next: string): boolean {
+    return this.isReact() && next.startsWith('lazy');
   }
 }
 
 export class ImportProcessor extends BaseProcessor implements Processor {
   process(): this {
-    const isDefaultImportSyntax = this.isDefaultImportSyntax();
-
-    if (isDefaultImportSyntax) {
-      this.tokens[this.tabStop.index] = this.tabStop.placeholder;
+    if (this.isDefaultImportSyntax()) {
+      this.replaceWithPlaceholder();
       this.replaceFileNameWithTabStop();
     } else {
       this.tabStop.disable();
@@ -115,22 +157,14 @@ export class ImportProcessor extends BaseProcessor implements Processor {
   }
 
   private isDefaultImportSyntax(): boolean {
-    if (!['typescriptreact', 'javascriptreact'].includes(this.language ?? '')) {
-      return false;
-    }
-
     // Skip "React from 'react'"
-    if (this.tabStop.name === 'React') {
+    if (!this.isReact() || this.tabStop.name === 'React') {
       return false;
     }
 
     const [next] = this.peekToken(this.tabStop.index + 1);
 
-    if (next !== 'from') {
-      return false;
-    }
-
-    return true;
+    return next === 'from';
   }
 
   private replaceFileNameWithTabStop(): void {
