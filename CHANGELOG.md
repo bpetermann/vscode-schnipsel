@@ -6,6 +6,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+### Added
+
+- Replace constants assigned with `createContext`, `forwardRef`, or `lazy` with tab stops in React files
+
 ## [1.2.0] - 2025-08-25
 
 ### Added
