@@ -1,3 +1,5 @@
+import { Tokens } from './types';
+
 /**
  * Performs identifier-to-tab-stop substitution on a tokenized line of source code.
  *
@@ -12,14 +14,14 @@ export class TabStopReplacer {
    * and the value is the snippet placeholder or value to replace it with.
    */
   constructor(
-    private readonly tokens: string[],
+    private readonly tokens: Tokens,
     private readonly tabStopMap: Map<string, string>
   ) {}
 
   /**
    * Replaces tab stops in the token array with their mapped values.
    */
-  public apply(): string[] {
+  public apply(): Tokens {
     return this.tokens.map((token) => {
       for (const [tabStop, value] of this.tabStopMap) {
         if (
@@ -31,7 +33,7 @@ export class TabStopReplacer {
         }
       }
       return token;
-    });
+    }) as Tokens;
   }
 
   /**
