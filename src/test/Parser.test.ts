@@ -258,6 +258,15 @@ suite('Parser Test Suite', () => {
     assert.strictEqual(body.length, 5);
   });
 
+  test('Handles Windows line endings (CRLF)', () => {
+    const input = `function foo()\r\nfoo()`;
+
+    const { body } = new Parser(input, config);
+
+    assert.strictEqual(body[0], `function \${1:foo}()`);
+    assert.strictEqual(body[1], '$1()');
+  });
+
   //** Safeguards Against False Positives */
   test('Ignores function names inside double-quoted strings', () => {
     const input = `function MyFunction() {};\n"MyFunction"`;

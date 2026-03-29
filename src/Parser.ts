@@ -36,7 +36,7 @@ export class Parser {
     private readonly config: Config,
     private readonly language?: Language
   ) {
-    this.sourceLines = input.trim().split('\n');
+    this.sourceLines = this.toLines(input);
     this.keywordProcessors = new Map<KeywordType, ProcessorConstructor>([
       ['type', DeclarationProcessor],
       ['interface', DeclarationProcessor],
@@ -122,6 +122,15 @@ export class Parser {
         this.resetTabStopId();
       }
     }
+  }
+
+  /**
+   * Normalizes line endings and splits the input into individual lines,
+   * trimming leading and trailing whitespace from the whole input.
+   * Handles both Unix (LF) and Windows (CRLF) line endings.
+   */
+  private toLines(input: string): Array<string> {
+    return input.trim().replace(/\r\n/g, '\n').split('\n');
   }
 
   private getCurrentLineTokens(): Tokens {

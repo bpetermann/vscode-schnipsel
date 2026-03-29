@@ -10,6 +10,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 - Fix import path corruption when component name is a substring of the file path (e.g. `Button` from `'./ButtonFrom'`)
 - Fix identifier replacement failing for names containing regex special characters (e.g. `state$`)
+- Fix snippet body corruption when input uses Windows line endings (CRLF)
 
 ## [1.3.0] - 2026-03-29
 
