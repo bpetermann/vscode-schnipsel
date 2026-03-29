@@ -12,7 +12,7 @@ export class BaseProcessor {
   constructor(
     public tokens: Tokens,
     public tabStop: TabStop,
-    readonly language?: Language
+    readonly language?: Language,
   ) {}
 
   /**
@@ -21,7 +21,7 @@ export class BaseProcessor {
    */
   protected normalizeNameWithSuffix(
     delimiter: string,
-    variable: string
+    variable: string,
   ): [name: string, suffix: string] {
     let name = variable;
     let rest = '';
@@ -171,9 +171,12 @@ export class ImportProcessor extends BaseProcessor implements Processor {
     const fromIndex = this.tokens.indexOf('from');
     if (fromIndex !== -1 && fromIndex + 1 < this.tokens.length) {
       const fileTokenIndex = fromIndex + 1;
+      const namePattern = new RegExp(`([/'])${this.tabStop.name}(['"])`);
+      const value = this.tabStop.value;
+
       this.tokens[fileTokenIndex] = this.tokens[fileTokenIndex].replace(
-        this.tabStop.name,
-        this.tabStop.value
+        namePattern,
+        (_, pre, post) => `${pre}${value}${post}`,
       );
     }
   }

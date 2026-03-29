@@ -4,6 +4,12 @@ All notable changes to the "schnipsel" extension will be documented in this file
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [Unreleased]
+
+### Fixed
+
+- Fix import path corruption when component name is a substring of the file path (e.g. `Button` from `'./ButtonFrom'`)
+
 ## [1.3.0] - 2026-03-29
 
 ### Added

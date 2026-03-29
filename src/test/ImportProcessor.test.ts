@@ -58,6 +58,15 @@ suite('ImportProcessor', () => {
     assert.strictEqual(processor.tabStop.shouldRegister(), false);
   });
 
+  test('Does not corrupt file path when component name is a substring of the path', () => {
+    const tokens = ['import', 'Button', 'from', "'./ButtonFrom'"];
+
+    const processor = createProcessor(tokens, 'Button', 1);
+    const result = processor.process().tokens;
+
+    assert.deepStrictEqual(result[3], "'./ButtonFrom'");
+  });
+
   test('Ignores named imports', () => {
     const tokens = ['import', '{', 'useState', '}', 'from', "'react'"];
 
