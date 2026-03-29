@@ -112,6 +112,19 @@ suite('ConstProcessor Test Suite', () => {
     assert.strictEqual(tabStop.name, FUNCTION_NAME);
   });
 
+  test('Does not replace parenthesized expression assignment', () => {
+    const inputTokens = ['const', 'result', '=', '(someValue)'];
+    const index = 1;
+    const name = inputTokens[index];
+
+    const { tabStop } = new ConstProcessor(
+      inputTokens.slice(),
+      new TabStop(name, index, TAB_ID)
+    ).process();
+
+    assert.strictEqual(tabStop.id, null);
+  });
+
   test('Return tabStop "null" if it is not an arrow function', () => {
     const inputTokens = ['const', FUNCTION_NAME, '=', '1'];
     const index = 1;

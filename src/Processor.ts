@@ -124,7 +124,7 @@ export class ConstProcessor extends BaseProcessor implements Processor {
   }
 
   private isArrowFunctionPattern(next: string): boolean {
-    return next.startsWith('(') || next === 'async';
+    return (next.startsWith('(') || next === 'async') && this.tokens.includes('=>');
   }
 
   private isContextName(next: string): boolean {
