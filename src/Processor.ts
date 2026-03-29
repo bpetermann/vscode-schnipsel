@@ -157,8 +157,8 @@ export class ImportProcessor extends BaseProcessor implements Processor {
   }
 
   private isDefaultImportSyntax(): boolean {
-    // Skip "React from 'react'"
-    if (!this.isReact() || this.tabStop.name === 'React') {
+    // Skip "import React from 'react'"
+    if (this.tabStop.name === 'React') {
       return false;
     }
 

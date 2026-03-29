@@ -38,14 +38,19 @@ suite('ImportProcessor', () => {
     assert.strictEqual(processor.tabStop.shouldRegister(), false);
   });
 
-  test('Does not process non-React languages', () => {
+  test('Processes default imports in non-React languages', () => {
     const tokens = ['import', COMPONENT, 'from', "'./MyComponent'"];
 
     const processor = createProcessor(tokens, COMPONENT, 1, 'typescript');
     const result = processor.process().tokens;
 
-    assert.deepStrictEqual(result, tokens);
-    assert.strictEqual(processor.tabStop.shouldRegister(), false);
+    assert.deepStrictEqual(result, [
+      'import',
+      '${1:MyComponent}',
+      'from',
+      "'./$1'",
+    ]);
+    assert.strictEqual(processor.tabStop.shouldRegister(), true);
   });
 
   test('Does not replace when "from" keyword is missing', () => {
