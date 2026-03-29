@@ -26,7 +26,7 @@ export class TabStopReplacer {
       for (const [tabStop, value] of this.tabStopMap) {
         if (
           this.isWholeWordMatch(token, tabStop) &&
-          !this.isObjectPropertyKey(token) &&
+          !this.isObjectPropertyKey(token, tabStop) &&
           !this.isStringLiteral(token)
         ) {
           return token.replace(tabStop, value);
@@ -46,11 +46,12 @@ export class TabStopReplacer {
   }
 
   /**
-   * Determines whether the token represents an object property key
-   * (e.g., `"foo:"`), in which case a tab stop should not be replaced.
+   * Determines whether the token represents an object property key,
+   * in which case a tab stop should not be replaced. Handles both spaced
+   * (`foo:`) and compact (`{foo:'bar'}`) object literal styles.
    */
-  private isObjectPropertyKey(item: string): boolean {
-    return item.endsWith(':');
+  private isObjectPropertyKey(token: string, identifier: string): boolean {
+    return token.includes(`${identifier}:`);
   }
 
   /**

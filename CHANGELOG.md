@@ -14,6 +14,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Fix duplicate declaration names producing nested tab stops (e.g. `${2:$1}`) instead of reusing the existing tab stop
 - Fix parenthesized expression assignments (e.g. `const x = (a + b)`) incorrectly receiving a tab stop
 - Fix default imports not being processed in non-React languages (`typescript`, `javascript`)
+- Fix identifier replacement incorrectly triggering inside compact object literals (e.g. `{foo:'bar'}`)
 
 ## [1.3.0] - 2026-03-29
 

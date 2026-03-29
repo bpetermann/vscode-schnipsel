@@ -50,6 +50,15 @@ suite('TabStopReplacer Test Suite', () => {
     assert.deepStrictEqual(result, ['const', '$1', '=', 'subject']);
   });
 
+  test('Does not replace identifier used as a compact object property key', () => {
+    const tokens = ["{MyComponent:'bar'}"];
+
+    const replacer = new TabStopReplacer(tokens, TABSTOP_MAP);
+    const result = replacer.apply();
+
+    assert.deepStrictEqual(result, tokens);
+  });
+
   test('returns unchanged tokens if no matches are found', () => {
     const tokens = ['function', 'OtherName', '(', ')', '{'];
 
