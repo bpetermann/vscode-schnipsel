@@ -98,7 +98,7 @@ export class Parser {
   ): void {
     const processor = this.keywordProcessors.get(key);
 
-    if (processor) {
+    if (processor && !/^\$[\d{]/.test(variable)) {
       const newTabStopId = this.generateNextTabStopId();
 
       const ts = new TabStop(

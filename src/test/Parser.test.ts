@@ -249,6 +249,15 @@ suite('Parser Test Suite', () => {
     assert.ok(body[3].includes('1'));
   });
 
+  test('Reuses existing tab stop for duplicate declaration names', () => {
+    const input = `type Foo = string\ntype Foo = number`;
+
+    const { body } = new Parser(input, config);
+
+    assert.strictEqual(body[0], 'type ${1:Foo} = string');
+    assert.strictEqual(body[1], 'type $1 = number');
+  });
+
   //** Spacing, Formatting, and Blank Lines */
   test('Preserves blank lines between constructs', () => {
     const input = `\nfunction greet() {}\n\n\n\ngreet()`;
