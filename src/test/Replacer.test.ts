@@ -40,6 +40,16 @@ suite('TabStopReplacer Test Suite', () => {
     assert.deepStrictEqual(result, tokens);
   });
 
+  test('Replaces identifiers that end with $', () => {
+    const tokens = ['const', 'state$', '=', 'subject'];
+    const map = new Map([['state$', '$1']]);
+
+    const replacer = new TabStopReplacer(tokens, map);
+    const result = replacer.apply();
+
+    assert.deepStrictEqual(result, ['const', '$1', '=', 'subject']);
+  });
+
   test('returns unchanged tokens if no matches are found', () => {
     const tokens = ['function', 'OtherName', '(', ')', '{'];
 

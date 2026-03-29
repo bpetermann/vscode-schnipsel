@@ -15,7 +15,7 @@ export class TabStopReplacer {
    */
   constructor(
     private readonly tokens: Tokens,
-    private readonly tabStopMap: Map<string, string>
+    private readonly tabStopMap: Map<string, string>,
   ) {}
 
   /**
@@ -39,10 +39,10 @@ export class TabStopReplacer {
   /**
    * Checks whether `token` contains `identifier` as a whole word according to JS regex
    * word-boundary semantics (i.e., boundaries between `\w` and `\W`).
-
    */
   private isWholeWordMatch(token: string, identifier: string): boolean {
-    return new RegExp(`\\b${identifier}\\b`).test(token);
+    const escaped = identifier.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp(`(?<!\\w)${escaped}(?!\\w)`).test(token);
   }
 
   /**

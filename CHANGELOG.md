@@ -9,6 +9,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ### Fixed
 
 - Fix import path corruption when component name is a substring of the file path (e.g. `Button` from `'./ButtonFrom'`)
+- Fix identifier replacement failing for names containing regex special characters (e.g. `state$`)
 
 ## [1.3.0] - 2026-03-29
 
