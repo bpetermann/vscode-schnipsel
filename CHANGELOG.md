@@ -6,6 +6,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-05-15
+
 ### Fixed
 
 - Fix import path corruption when component name is a substring of the file path (e.g. `Button` from `'./ButtonFrom'`)
@@ -61,3 +63,5 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 [1.0.0]: https://github.com/bpetermann/vscode-schnipsel/releases/tag/v1.0.0
 [1.2.0]: https://github.com/bpetermann/vscode-schnipsel/releases/tag/v1.2.0
+[1.3.0]: https://github.com/bpetermann/vscode-schnipsel/releases/tag/v1.3.0
+[1.3.1]: https://github.com/bpetermann/vscode-schnipsel/releases/tag/v1.3.1
