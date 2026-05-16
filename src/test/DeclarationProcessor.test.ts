@@ -12,9 +12,10 @@ suite('DeclarationProcessor Test Suite', () => {
 
     const { tokens, tabStop } = new DeclarationProcessor(
       inputTokens.slice(),
-      new TabStop(TYPE_NAME, index, TAB_ID)
+      new TabStop(TYPE_NAME, index, TAB_ID),
     ).process();
 
+    assert.ok(tabStop);
     assert.strictEqual(tokens[1], '${1:MyType}');
     assert.strictEqual(tabStop.name, TYPE_NAME);
     assert.strictEqual(tabStop.value, '$1');
@@ -27,9 +28,10 @@ suite('DeclarationProcessor Test Suite', () => {
 
     const { tokens, tabStop } = new DeclarationProcessor(
       inputTokens.slice(),
-      new TabStop(name, index, TAB_ID)
+      new TabStop(name, index, TAB_ID),
     ).process();
 
+    assert.ok(tabStop);
     assert.strictEqual(tokens[1], '${1:My_Type}');
     assert.strictEqual(tabStop.name, 'My_Type');
   });
@@ -40,9 +42,10 @@ suite('DeclarationProcessor Test Suite', () => {
 
     const { tokens, tabStop } = new DeclarationProcessor(
       inputTokens.slice(),
-      new TabStop(TYPE_NAME, index, TAB_ID)
+      new TabStop(TYPE_NAME, index, TAB_ID),
     ).process();
 
+    assert.ok(tabStop);
     assert.strictEqual(tokens[0], '${1:MyType}');
     assert.strictEqual(tabStop.name, TYPE_NAME);
   });
@@ -54,7 +57,7 @@ suite('DeclarationProcessor Test Suite', () => {
 
     const { tokens } = new DeclarationProcessor(
       inputTokens.slice(),
-      new TabStop(name, index, TAB_ID)
+      new TabStop(name, index, TAB_ID),
     ).process();
 
     assert.strictEqual(tokens[1], 'A');
@@ -67,7 +70,7 @@ suite('DeclarationProcessor Test Suite', () => {
 
     const { tokens } = new DeclarationProcessor(
       inputTokens.slice(),
-      new TabStop(TYPE_NAME, index, TAB_ID)
+      new TabStop(TYPE_NAME, index, TAB_ID),
     ).process();
 
     assert.deepStrictEqual(tokens[0], inputTokens[0]);

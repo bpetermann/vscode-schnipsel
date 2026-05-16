@@ -13,9 +13,10 @@ suite('FunctionProcessor Test Suite', () => {
 
     const { tokens, tabStop } = new FunctionProcessor(
       inputTokens.slice(),
-      new TabStop(name, index, TAB_ID)
+      new TabStop(name, index, TAB_ID),
     ).process();
 
+    assert.ok(tabStop);
     assert.strictEqual(tokens[1], '${1:foo}()');
     assert.strictEqual(tabStop.name, FUNCTION_NAME);
     assert.strictEqual(tabStop.value, '$1');
@@ -28,9 +29,10 @@ suite('FunctionProcessor Test Suite', () => {
 
     const { tokens, tabStop } = new FunctionProcessor(
       inputTokens.slice(),
-      new TabStop(name, index, TAB_ID)
+      new TabStop(name, index, TAB_ID),
     ).process();
 
+    assert.ok(tabStop);
     assert.strictEqual(tokens[1], `\${1:${FUNCTION_NAME}}(a,`);
     assert.strictEqual(tabStop.name, FUNCTION_NAME);
   });
@@ -41,9 +43,10 @@ suite('FunctionProcessor Test Suite', () => {
 
     const { tokens, tabStop } = new FunctionProcessor(
       inputTokens.slice(),
-      new TabStop(FUNCTION_NAME, index, TAB_ID)
+      new TabStop(FUNCTION_NAME, index, TAB_ID),
     ).process();
 
+    assert.ok(tabStop);
     assert.strictEqual(tokens[1], '${1:foo}');
     assert.strictEqual(tabStop.name, FUNCTION_NAME);
   });
@@ -55,7 +58,7 @@ suite('FunctionProcessor Test Suite', () => {
 
     const { tokens } = new FunctionProcessor(
       inputTokens.slice(),
-      new TabStop(name, index, TAB_ID)
+      new TabStop(name, index, TAB_ID),
     ).process();
 
     assert.strictEqual(tokens[1], 'foo()');
@@ -69,7 +72,7 @@ suite('FunctionProcessor Test Suite', () => {
 
     const { tokens } = new FunctionProcessor(
       inputTokens.slice(),
-      new TabStop(name, index, TAB_ID)
+      new TabStop(name, index, TAB_ID),
     ).process();
 
     assert.deepStrictEqual(tokens[0], inputTokens[0]);
@@ -83,9 +86,10 @@ suite('FunctionProcessor Test Suite', () => {
 
     const { tokens, tabStop } = new FunctionProcessor(
       inputTokens.slice(),
-      new TabStop(name, index, TAB_ID)
+      new TabStop(name, index, TAB_ID),
     ).process();
 
+    assert.ok(tabStop);
     assert.strictEqual(tokens[1], '${1:fn}(a)(b)');
     assert.strictEqual(tabStop.name, 'fn');
   });
@@ -97,9 +101,10 @@ suite('FunctionProcessor Test Suite', () => {
 
     const { tokens, tabStop } = new FunctionProcessor(
       inputTokens.slice(),
-      new TabStop(name, index, TAB_ID)
+      new TabStop(name, index, TAB_ID),
     ).process();
 
+    assert.ok(tabStop);
     assert.strictEqual(tokens[1], '${1:fetch1}()');
     assert.strictEqual(tabStop.name, 'fetch1');
   });
@@ -111,9 +116,10 @@ suite('FunctionProcessor Test Suite', () => {
 
     const { tokens, tabStop } = new FunctionProcessor(
       inputTokens.slice(),
-      new TabStop(name, index, TAB_ID)
+      new TabStop(name, index, TAB_ID),
     ).process();
 
+    assert.ok(tabStop);
     assert.strictEqual(tokens[1], `\${1:${FUNCTION_NAME}}(a)(b)(c)`);
     assert.strictEqual(tabStop.name, FUNCTION_NAME);
   });

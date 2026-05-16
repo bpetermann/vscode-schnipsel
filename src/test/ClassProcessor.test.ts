@@ -13,9 +13,10 @@ suite('ClassProcessor Test Suite', () => {
 
     const { tokens, tabStop } = new ClassProcessor(
       inputTokens.slice(),
-      new TabStop(name, index, TAB_ID)
+      new TabStop(name, index, TAB_ID),
     ).process();
 
+    assert.ok(tabStop);
     assert.strictEqual(tokens[1], '${1:MyClass}{');
     assert.strictEqual(tabStop.name, CLASS_NAME);
     assert.strictEqual(tabStop.value, '$1');
@@ -27,9 +28,10 @@ suite('ClassProcessor Test Suite', () => {
 
     const { tokens, tabStop } = new ClassProcessor(
       inputTokens.slice(),
-      new TabStop(CLASS_NAME, index, TAB_ID)
+      new TabStop(CLASS_NAME, index, TAB_ID),
     ).process();
 
+    assert.ok(tabStop);
     assert.strictEqual(tokens[1], '${1:MyClass}');
     assert.strictEqual(tabStop.name, CLASS_NAME);
   });
@@ -41,9 +43,10 @@ suite('ClassProcessor Test Suite', () => {
 
     const { tokens, tabStop } = new ClassProcessor(
       inputTokens.slice(),
-      new TabStop(name, index, TAB_ID)
+      new TabStop(name, index, TAB_ID),
     ).process();
 
+    assert.ok(tabStop);
     assert.strictEqual(tokens[2], '${1:Thing}');
     assert.strictEqual(tabStop.name, 'Thing');
     assert.strictEqual(tabStop.value, '$1');
@@ -56,7 +59,7 @@ suite('ClassProcessor Test Suite', () => {
 
     const { tokens } = new ClassProcessor(
       inputTokens.slice(),
-      new TabStop(name, index, TAB_ID)
+      new TabStop(name, index, TAB_ID),
     ).process();
 
     assert.strictEqual(tokens[1], 'One{');
@@ -70,7 +73,7 @@ suite('ClassProcessor Test Suite', () => {
 
     const { tokens } = new ClassProcessor(
       inputTokens.slice(),
-      new TabStop(name, index, TAB_ID)
+      new TabStop(name, index, TAB_ID),
     ).process();
 
     assert.deepStrictEqual(tokens[0], inputTokens[0]);

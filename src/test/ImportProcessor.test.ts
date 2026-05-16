@@ -8,7 +8,7 @@ suite('ImportProcessor', () => {
     const tokens = ['import', COMPONENT, 'from', "'./MyComponent'"];
 
     const processor = createProcessor(tokens, COMPONENT, 1);
-    const result = processor.process().tokens;
+    const { tokens: result, tabStop } = processor.process();
 
     assert.deepStrictEqual(result, [
       'import',
@@ -16,14 +16,14 @@ suite('ImportProcessor', () => {
       'from',
       "'./$1'",
     ]);
-    assert.strictEqual(processor.tabStop.shouldRegister(), true);
+    assert.notStrictEqual(tabStop, null);
   });
 
   test('Replaces deeply nested default component imports', () => {
     const tokens = ['import', COMPONENT, 'from', "'./ui/MyComponent'"];
 
     const processor = createProcessor(tokens, COMPONENT, 1);
-    const result = processor.process().tokens;
+    const { tokens: result } = processor.process();
 
     assert.deepStrictEqual(result[3], "'./ui/$1'");
   });
@@ -32,17 +32,17 @@ suite('ImportProcessor', () => {
     const tokens = ['import', 'React', 'from', "'react'"];
 
     const processor = createProcessor(tokens, 'React', 1);
-    const result = processor.process().tokens;
+    const { tokens: result, tabStop } = processor.process();
 
     assert.deepStrictEqual(result, tokens);
-    assert.strictEqual(processor.tabStop.shouldRegister(), false);
+    assert.strictEqual(tabStop, null);
   });
 
   test('Processes default imports in non-React languages', () => {
     const tokens = ['import', COMPONENT, 'from', "'./MyComponent'"];
 
     const processor = createProcessor(tokens, COMPONENT, 1, 'typescript');
-    const result = processor.process().tokens;
+    const { tokens: result, tabStop } = processor.process();
 
     assert.deepStrictEqual(result, [
       'import',
@@ -50,24 +50,24 @@ suite('ImportProcessor', () => {
       'from',
       "'./$1'",
     ]);
-    assert.strictEqual(processor.tabStop.shouldRegister(), true);
+    assert.notStrictEqual(tabStop, null);
   });
 
   test('Does not replace when "from" keyword is missing', () => {
     const tokens = ['import', COMPONENT];
 
     const processor = createProcessor(tokens, COMPONENT, 1);
-    const result = processor.process().tokens;
+    const { tokens: result, tabStop } = processor.process();
 
     assert.deepStrictEqual(result, tokens);
-    assert.strictEqual(processor.tabStop.shouldRegister(), false);
+    assert.strictEqual(tabStop, null);
   });
 
   test('Does not corrupt file path when component name is a substring of the path', () => {
     const tokens = ['import', 'Button', 'from', "'./ButtonFrom'"];
 
     const processor = createProcessor(tokens, 'Button', 1);
-    const result = processor.process().tokens;
+    const { tokens: result } = processor.process();
 
     assert.deepStrictEqual(result[3], "'./ButtonFrom'");
   });
@@ -76,9 +76,9 @@ suite('ImportProcessor', () => {
     const tokens = ['import', '{', 'useState', '}', 'from', "'react'"];
 
     const processor = createProcessor(tokens, 'useState', 2);
-    const result = processor.process().tokens;
+    const { tokens: result, tabStop } = processor.process();
 
     assert.deepStrictEqual(result, tokens);
-    assert.strictEqual(processor.tabStop.shouldRegister(), false);
+    assert.strictEqual(tabStop, null);
   });
 });

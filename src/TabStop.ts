@@ -6,7 +6,7 @@ export class TabStop {
   constructor(
     public name: string,
     public index: number,
-    public id: number | null,
+    public readonly id: number | null,
     public withPlaceholder: boolean = true
   ) {}
 
@@ -21,17 +21,4 @@ export class TabStop {
     return this.withPlaceholder ? `\${${this.id}:${this.name}}` : this.value;
   }
 
-  /**
-   * True if this tab stop has an ID and should be registered.
-   */
-  shouldRegister(): boolean {
-    return this.id !== null;
-  }
-
-  /**
-   * Marks this tab stop as non-registerable.
-   */
-  disable(): void {
-    this.id = null;
-  }
 }

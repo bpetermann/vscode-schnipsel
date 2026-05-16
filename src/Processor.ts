@@ -1,11 +1,16 @@
 import { TabStop } from './TabStop';
 import { Language, ProcessorConstructor, Tokens } from './types';
 
+export interface ProcessorResult {
+  tokens: Tokens;
+  tabStop: TabStop | null;
+}
+
 export interface Processor {
   tokens: Tokens;
   tabStop: TabStop;
   readonly language?: Language;
-  process(): this;
+  process(): ProcessorResult;
 }
 
 export class BaseProcessor {
@@ -51,7 +56,7 @@ export class BaseProcessor {
 
 function makeSimpleProcessor(delimiter?: string): ProcessorConstructor {
   return class extends BaseProcessor implements Processor {
-    process(): this {
+    process(): ProcessorResult {
       if (delimiter !== undefined) {
         const [name, rest] = this.normalizeNameWithSuffix(
           delimiter,
@@ -62,7 +67,7 @@ function makeSimpleProcessor(delimiter?: string): ProcessorConstructor {
       } else {
         this.replaceWithPlaceholder();
       }
-      return this;
+      return { tokens: this.tokens, tabStop: this.tabStop };
     }
   };
 }
@@ -80,30 +85,21 @@ export class ConstProcessor extends BaseProcessor implements Processor {
     this.isLazy,
   ];
 
-  process(): this {
-    this.ensureAssignment();
-    return this;
-  }
-
-  private ensureAssignment(): void {
-    const nextIndex = this.tabStop.index + 1;
-
-    if (this.tokens[nextIndex] !== '=') {
-      this.tabStop.disable();
-      return;
-    }
-
-    this.checkPattern(nextIndex);
-  }
-
-  private checkPattern(index: number): void {
-    const afterNext = this.tokens[index + 1] ?? '';
-
-    if (this.patterns.some((fn) => fn.call(this, afterNext))) {
+  process(): ProcessorResult {
+    if (this.checkAssignment()) {
       this.replaceWithPlaceholder();
-    } else {
-      this.tabStop.disable();
+      return { tokens: this.tokens, tabStop: this.tabStop };
     }
+    return { tokens: this.tokens, tabStop: null };
+  }
+
+  private checkAssignment(): boolean {
+    const nextIndex = this.tabStop.index + 1;
+    if (this.tokens[nextIndex] !== '=') {
+      return false;
+    }
+    const afterNext = this.tokens[nextIndex + 1] ?? '';
+    return this.patterns.some((fn) => fn.call(this, afterNext));
   }
 
   private isArrowFunctionPattern(next: string): boolean {
@@ -130,15 +126,13 @@ export class ConstProcessor extends BaseProcessor implements Processor {
 }
 
 export class ImportProcessor extends BaseProcessor implements Processor {
-  process(): this {
+  process(): ProcessorResult {
     if (this.isDefaultImportSyntax()) {
       this.replaceWithPlaceholder();
       this.replaceFileNameWithTabStop();
-    } else {
-      this.tabStop.disable();
+      return { tokens: this.tokens, tabStop: this.tabStop };
     }
-
-    return this;
+    return { tokens: this.tokens, tabStop: null };
   }
 
   private isDefaultImportSyntax(): boolean {

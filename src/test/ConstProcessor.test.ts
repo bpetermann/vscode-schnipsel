@@ -15,6 +15,7 @@ suite('ConstProcessor Test Suite', () => {
       new TabStop(FUNCTION_NAME, index, TAB_ID),
     ).process();
 
+    assert.ok(tabStop);
     assert.strictEqual(tokens[1], '${1:foo}');
     assert.strictEqual(tabStop.name, FUNCTION_NAME);
     assert.strictEqual(tabStop.value, '$1');
@@ -30,6 +31,7 @@ suite('ConstProcessor Test Suite', () => {
       new TabStop(name, index, TAB_ID),
     ).process();
 
+    assert.ok(tabStop);
     assert.strictEqual(tokens[1], '${1:doWork}');
     assert.strictEqual(tabStop.value, '$1');
   });
@@ -45,7 +47,7 @@ suite('ConstProcessor Test Suite', () => {
     ).process();
 
     assert.strictEqual(tokens[1], 'value');
-    assert.strictEqual(tabStop.id, null);
+    assert.strictEqual(tabStop, null);
   });
 
   test('Handles irregular spacing before arrow function', () => {
@@ -107,6 +109,7 @@ suite('ConstProcessor Test Suite', () => {
       new TabStop(FUNCTION_NAME, index, TAB_ID),
     ).process();
 
+    assert.ok(tabStop);
     assert.strictEqual(tabStop.name, FUNCTION_NAME);
   });
 
@@ -120,7 +123,7 @@ suite('ConstProcessor Test Suite', () => {
       new TabStop(name, index, TAB_ID),
     ).process();
 
-    assert.strictEqual(tabStop.id, null);
+    assert.strictEqual(tabStop, null);
   });
 
   test('Return tabStop "null" if it is not an arrow function', () => {
@@ -132,7 +135,7 @@ suite('ConstProcessor Test Suite', () => {
       new TabStop(FUNCTION_NAME, index, TAB_ID),
     ).process();
 
-    assert.strictEqual(tabStop.id, null);
+    assert.strictEqual(tabStop, null);
   });
 
   test('Replaces context name with a placeholder', () => {

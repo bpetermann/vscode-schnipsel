@@ -43,9 +43,8 @@ suite('TabStop Test Suite', () => {
     assert.strictEqual(ts.placeholder, '${1:updated}');
   });
 
-  test('value reflects updated id after mutation', () => {
+  test('id is preserved at construction', () => {
     const ts = new TabStop('name', 0, 1, false);
-    ts.id = 42;
-    assert.strictEqual(ts.value, '$42');
+    assert.strictEqual(ts.id, 1);
   });
 });

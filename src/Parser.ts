@@ -94,7 +94,7 @@ export class Parser {
 
       this.currentLineTokens = tokens;
 
-      if (tabStop.shouldRegister()) {
+      if (tabStop !== null) {
         this.registerTabStop(tabStop.name, tabStop.value);
       } else {
         this.resetTabStopId();
