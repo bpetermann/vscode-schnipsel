@@ -24,21 +24,12 @@ export class Snippet {
     this.description = `Auto-generated ${languageId} snippet from ${fileName}`;
   }
 
-  /**
-   * Converts the snippet data into a JSON string format compatible with VS Code user snippets.
-   * @returns A string representing the VS Code snippet JSON, without the outer curly braces.
-   */
   public toString(): string {
-    return JSON.stringify(
-      {
-        [this.name]: {
-          prefix: this.prefix,
-          body: this.body,
-          description: this.description,
-        },
-      },
+    const valueJson = JSON.stringify(
+      { prefix: this.prefix, body: this.body, description: this.description },
       null,
       2
-    ).slice(1, -1);
+    ).replace(/\n/g, '\n  ');
+    return `\n  ${JSON.stringify(this.name)}: ${valueJson}\n`;
   }
 }

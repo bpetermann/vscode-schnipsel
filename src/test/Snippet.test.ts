@@ -3,24 +3,30 @@ import { Snippet } from '../Snippet';
 import { SNIPPET } from '../constants';
 
 suite('Snippet Test Suite', () => {
-  test('toString returns valid snippet JSON', () => {
-    const body: string[] = [];
-    const languageId = 'typescriptreact';
-    const fileName = 'Component';
+  const body: string[] = ['const ${1:foo} = $1;'];
+  const languageId = 'typescriptreact';
+  const fileName = 'Component';
+  const expectedKey = `${SNIPPET.NAME} ${fileName}`;
+  const expectedObject = {
+    [expectedKey]: {
+      prefix: fileName,
+      body,
+      description: `Auto-generated ${languageId} snippet from ${fileName}`,
+    },
+  };
 
+  test('toString output is an embeddable JSON fragment (no outer braces)', () => {
     const snippet = new Snippet(body, languageId, fileName);
     const result = snippet.toString();
 
-    const parsed = JSON.parse(`{${result}}`);
+    // Lock down exact format: wrapping in {} must produce valid snippet JSON.
+    assert.strictEqual(`{${result}}`, JSON.stringify(expectedObject, null, 2));
+  });
 
-    const expectedKey = `${SNIPPET.NAME} ${fileName}`;
+  test('toString output parses to correct snippet structure', () => {
+    const snippet = new Snippet(body, languageId, fileName);
+    const result = snippet.toString();
 
-    assert.deepStrictEqual(parsed, {
-      [expectedKey]: {
-        prefix: fileName,
-        body,
-        description: `Auto-generated ${languageId} snippet from ${fileName}`,
-      },
-    });
+    assert.deepStrictEqual(JSON.parse(`{${result}}`), expectedObject);
   });
 });
