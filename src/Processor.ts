@@ -1,5 +1,5 @@
 import { TabStop } from './TabStop';
-import { EMPTY_TOKEN, Language, Tokens } from './types';
+import { Language, Tokens } from './types';
 
 export interface Processor {
   tokens: Tokens;
@@ -34,20 +34,6 @@ export class BaseProcessor {
     }
 
     return [name, rest];
-  }
-
-  /**
-   * Returns the next non-empty token and its actual index in the token list.
-   * Skips over empty strings (e.g. from irregular spacing).
-   */
-  protected peekToken(startIndex: number): [token: string, index: number] {
-    for (let i = startIndex; i < this.tokens.length; i++) {
-      const token = this.tokens[i];
-      if (token.trim() !== EMPTY_TOKEN) {
-        return [token, i];
-      }
-    }
-    return [EMPTY_TOKEN, -1];
   }
 
   /** Replace the current tab stop token with its placeholder. */
@@ -103,9 +89,9 @@ export class ConstProcessor extends BaseProcessor implements Processor {
   }
 
   private ensureAssignment(): void {
-    const [next, nextIndex] = this.peekToken(this.tabStop.index + 1);
+    const nextIndex = this.tabStop.index + 1;
 
-    if (next !== '=') {
+    if (this.tokens[nextIndex] !== '=') {
       this.tabStop.disable();
       return;
     }
@@ -114,7 +100,7 @@ export class ConstProcessor extends BaseProcessor implements Processor {
   }
 
   private checkPattern(index: number): void {
-    const [afterNext] = this.peekToken(index + 1);
+    const afterNext = this.tokens[index + 1] ?? '';
 
     if (this.patterns.some((fn) => fn.call(this, afterNext))) {
       this.replaceWithPlaceholder();
@@ -124,7 +110,9 @@ export class ConstProcessor extends BaseProcessor implements Processor {
   }
 
   private isArrowFunctionPattern(next: string): boolean {
-    return (next.startsWith('(') || next === 'async') && this.tokens.includes('=>');
+    return (
+      (next.startsWith('(') || next === 'async') && this.tokens.includes('=>')
+    );
   }
 
   private isContextName(next: string): boolean {
@@ -162,9 +150,7 @@ export class ImportProcessor extends BaseProcessor implements Processor {
       return false;
     }
 
-    const [next] = this.peekToken(this.tabStop.index + 1);
-
-    return next === 'from';
+    return this.tokens[this.tabStop.index + 1] === 'from';
   }
 
   private replaceFileNameWithTabStop(): void {

@@ -12,7 +12,7 @@ suite('ConstProcessor Test Suite', () => {
 
     const { tokens, tabStop } = new ConstProcessor(
       inputTokens.slice(),
-      new TabStop(FUNCTION_NAME, index, TAB_ID)
+      new TabStop(FUNCTION_NAME, index, TAB_ID),
     ).process();
 
     assert.strictEqual(tokens[1], '${1:foo}');
@@ -27,7 +27,7 @@ suite('ConstProcessor Test Suite', () => {
 
     const { tokens, tabStop } = new ConstProcessor(
       inputTokens.slice(),
-      new TabStop(name, index, TAB_ID)
+      new TabStop(name, index, TAB_ID),
     ).process();
 
     assert.strictEqual(tokens[1], '${1:doWork}');
@@ -41,7 +41,7 @@ suite('ConstProcessor Test Suite', () => {
 
     const { tokens, tabStop } = new ConstProcessor(
       inputTokens.slice(),
-      new TabStop(name, index, TAB_ID)
+      new TabStop(name, index, TAB_ID),
     ).process();
 
     assert.strictEqual(tokens[1], 'value');
@@ -52,9 +52,7 @@ suite('ConstProcessor Test Suite', () => {
     const inputTokens = [
       'const',
       'sum',
-      '',
       '=',
-      '',
       '(',
       'a',
       ',',
@@ -68,7 +66,7 @@ suite('ConstProcessor Test Suite', () => {
 
     const { tokens } = new ConstProcessor(
       inputTokens.slice(),
-      new TabStop(name, index, TAB_ID)
+      new TabStop(name, index, TAB_ID),
     ).process();
 
     assert.strictEqual(tokens[1], '${1:sum}');
@@ -93,7 +91,7 @@ suite('ConstProcessor Test Suite', () => {
 
     const { tokens } = new ConstProcessor(
       inputTokens.slice(),
-      new TabStop(name, index, TAB_ID)
+      new TabStop(name, index, TAB_ID),
     ).process();
 
     assert.strictEqual(tokens[1], 'x');
@@ -106,7 +104,7 @@ suite('ConstProcessor Test Suite', () => {
 
     const { tabStop } = new ConstProcessor(
       inputTokens.slice(),
-      new TabStop(FUNCTION_NAME, index, TAB_ID)
+      new TabStop(FUNCTION_NAME, index, TAB_ID),
     ).process();
 
     assert.strictEqual(tabStop.name, FUNCTION_NAME);
@@ -119,7 +117,7 @@ suite('ConstProcessor Test Suite', () => {
 
     const { tabStop } = new ConstProcessor(
       inputTokens.slice(),
-      new TabStop(name, index, TAB_ID)
+      new TabStop(name, index, TAB_ID),
     ).process();
 
     assert.strictEqual(tabStop.id, null);
@@ -131,7 +129,7 @@ suite('ConstProcessor Test Suite', () => {
 
     const { tabStop } = new ConstProcessor(
       inputTokens.slice(),
-      new TabStop(FUNCTION_NAME, index, TAB_ID)
+      new TabStop(FUNCTION_NAME, index, TAB_ID),
     ).process();
 
     assert.strictEqual(tabStop.id, null);
@@ -151,7 +149,7 @@ suite('ConstProcessor Test Suite', () => {
     const { tokens } = new ConstProcessor(
       inputTokens.slice(),
       new TabStop(FUNCTION_NAME, index, TAB_ID),
-      'typescriptreact'
+      'typescriptreact',
     ).process();
 
     assert.strictEqual(tokens[1], '${1:foo}');
@@ -175,7 +173,7 @@ suite('ConstProcessor Test Suite', () => {
     const { tokens } = new ConstProcessor(
       inputTokens.slice(),
       new TabStop(FUNCTION_NAME, index, TAB_ID),
-      'typescriptreact'
+      'typescriptreact',
     ).process();
 
     assert.strictEqual(tokens[1], '${1:foo}');
@@ -198,7 +196,7 @@ suite('ConstProcessor Test Suite', () => {
     const { tokens } = new ConstProcessor(
       inputTokens.slice(),
       new TabStop(FUNCTION_NAME, index, TAB_ID),
-      'typescriptreact'
+      'typescriptreact',
     ).process();
 
     assert.strictEqual(tokens[1], '${1:foo}');

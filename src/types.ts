@@ -6,8 +6,6 @@ import { TabStop } from './TabStop';
 
 export type Tokens = Array<string>;
 
-export const EMPTY_TOKEN = '' as const;
-
 export type Language = (typeof SUPPORTED_LANGUAGES)[number];
 
 export interface Config {
@@ -24,7 +22,7 @@ export interface Config {
 export type ProcessorConstructor = new (
   tokens: string[],
   tabStop: TabStop,
-  language?: Language
+  language?: Language,
 ) => Processor;
 
 /**
@@ -36,7 +34,7 @@ export type ProcessorConstructor = new (
 export type ParserFactory = (
   text: string,
   config: Config,
-  language?: Language
+  language?: Language,
 ) => Parser;
 
 /**
@@ -48,5 +46,5 @@ export type ParserFactory = (
 export type SnippetFactory = (
   body: string[],
   language: string,
-  name: string
+  name: string,
 ) => Snippet;

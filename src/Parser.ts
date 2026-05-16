@@ -1,7 +1,8 @@
+import { ProcessorRegistry } from './ProcessorRegistry';
 import { TabStopReplacer } from './Replacer';
 import { TabStop } from './TabStop';
+import * as Tokenizer from './Tokenizer';
 import { Config, Language, Tokens } from './types';
-import { ProcessorRegistry } from './ProcessorRegistry';
 
 /**
  * Parses source code to transform it into a VS Code snippet body format,
@@ -21,7 +22,7 @@ export class Parser {
   constructor(
     input: string,
     private readonly config: Config,
-    private readonly language?: Language
+    private readonly language?: Language,
   ) {
     this.sourceLines = this.toLines(input);
     this.processAllLines();
@@ -38,7 +39,7 @@ export class Parser {
 
     const replacer = new TabStopReplacer(
       this.currentLineTokens,
-      this.tabStopMap
+      this.tabStopMap,
     );
 
     this.currentLineTokens = replacer.apply();
@@ -54,14 +55,15 @@ export class Parser {
 
   private handleKeywordDeclaration(key: string): void {
     const keywordIndex = this.currentLineTokens.findIndex((v) => v === key);
-    const tokensAfterKeyword = this.currentLineTokens.slice(keywordIndex + 1);
-    const nameOffsetInSlice = tokensAfterKeyword.findIndex(Boolean);
 
-    if (keywordIndex === -1 || nameOffsetInSlice === -1) {
+    if (
+      keywordIndex === -1 ||
+      keywordIndex + 1 >= this.currentLineTokens.length
+    ) {
       return;
     }
 
-    const variableIndex = keywordIndex + 1 + nameOffsetInSlice;
+    const variableIndex = keywordIndex + 1;
     const variable = this.currentLineTokens[variableIndex];
 
     this.invokeKeywordProcessor(key, variable, variableIndex);
@@ -70,7 +72,7 @@ export class Parser {
   private invokeKeywordProcessor(
     key: string,
     variable: string,
-    variableIndex: number
+    variableIndex: number,
   ): void {
     const processor = this.registry.get(key);
 
@@ -81,13 +83,13 @@ export class Parser {
         variable,
         variableIndex,
         newTabStopId,
-        this.config.placeholder
+        this.config.placeholder,
       );
 
       const { tokens, tabStop } = new processor(
         this.currentLineTokens,
         ts,
-        this.language
+        this.language,
       ).process();
 
       this.currentLineTokens = tokens;
@@ -110,7 +112,7 @@ export class Parser {
   }
 
   private getCurrentLineTokens(): Tokens {
-    return this.sourceLines[this.currentLineIndex++].split(' ');
+    return Tokenizer.tokenize(this.sourceLines[this.currentLineIndex++]);
   }
 
   private generateNextTabStopId(): number {
@@ -118,7 +120,7 @@ export class Parser {
   }
 
   private appendProcessedLine(tokens: Tokens): void {
-    this.body.push(tokens.join(' '));
+    this.body.push(Tokenizer.join(tokens));
   }
 
   private registerTabStop(name: string, value: string) {
