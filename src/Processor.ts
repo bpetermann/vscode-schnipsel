@@ -1,5 +1,5 @@
 import { TabStop } from './TabStop';
-import { Language, Tokens } from './types';
+import { Language, ProcessorConstructor, Tokens } from './types';
 
 export interface Processor {
   tokens: Tokens;
@@ -49,30 +49,27 @@ export class BaseProcessor {
   }
 }
 
-export class DeclarationProcessor extends BaseProcessor implements Processor {
-  process(): this {
-    this.replaceWithPlaceholder();
-    return this;
-  }
+function makeSimpleProcessor(delimiter?: string): ProcessorConstructor {
+  return class extends BaseProcessor implements Processor {
+    process(): this {
+      if (delimiter !== undefined) {
+        const [name, rest] = this.normalizeNameWithSuffix(
+          delimiter,
+          this.tabStop.name,
+        );
+        this.tabStop.name = name;
+        this.replaceWithPlaceholder(rest);
+      } else {
+        this.replaceWithPlaceholder();
+      }
+      return this;
+    }
+  };
 }
 
-export class FunctionProcessor extends BaseProcessor implements Processor {
-  process(): this {
-    const [name, rest] = this.normalizeNameWithSuffix('(', this.tabStop.name);
-    this.tabStop.name = name;
-    this.replaceWithPlaceholder(rest);
-    return this;
-  }
-}
-
-export class ClassProcessor extends BaseProcessor implements Processor {
-  process(): this {
-    const [name, rest] = this.normalizeNameWithSuffix('{', this.tabStop.name);
-    this.tabStop.name = name;
-    this.replaceWithPlaceholder(rest);
-    return this;
-  }
-}
+export const DeclarationProcessor = makeSimpleProcessor();
+export const FunctionProcessor = makeSimpleProcessor('(');
+export const ClassProcessor = makeSimpleProcessor('{');
 
 export class ConstProcessor extends BaseProcessor implements Processor {
   private patterns: Array<(next: string) => boolean> = [
