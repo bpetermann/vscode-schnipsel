@@ -8,17 +8,6 @@ export type Tokens = Array<string>;
 
 export const EMPTY_TOKEN = '' as const;
 
-export const keywords = [
-  'function',
-  'type',
-  'interface',
-  'class',
-  'const',
-  'import',
-] as const;
-
-export type KeywordType = (typeof keywords)[number];
-
 export type Language = (typeof SUPPORTED_LANGUAGES)[number];
 
 export interface Config {

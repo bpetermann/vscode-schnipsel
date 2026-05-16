@@ -1,20 +1,7 @@
-import {
-  ClassProcessor,
-  ConstProcessor,
-  DeclarationProcessor,
-  FunctionProcessor,
-  ImportProcessor,
-} from './Processor';
 import { TabStopReplacer } from './Replacer';
 import { TabStop } from './TabStop';
-import {
-  Config,
-  keywords,
-  KeywordType,
-  Language,
-  ProcessorConstructor,
-  Tokens,
-} from './types';
+import { Config, Language, Tokens } from './types';
+import { ProcessorRegistry } from './ProcessorRegistry';
 
 /**
  * Parses source code to transform it into a VS Code snippet body format,
@@ -29,7 +16,7 @@ export class Parser {
   private currentLineTokens: Tokens = [];
   private tabStopMap = new Map<string, string>();
 
-  private readonly keywordProcessors: Map<KeywordType, ProcessorConstructor>;
+  private readonly registry = new ProcessorRegistry();
 
   constructor(
     input: string,
@@ -37,14 +24,6 @@ export class Parser {
     private readonly language?: Language
   ) {
     this.sourceLines = this.toLines(input);
-    this.keywordProcessors = new Map<KeywordType, ProcessorConstructor>([
-      ['type', DeclarationProcessor],
-      ['interface', DeclarationProcessor],
-      ['function', FunctionProcessor],
-      ['class', ClassProcessor],
-      ['const', ConstProcessor],
-      ['import', ImportProcessor],
-    ]);
     this.processAllLines();
   }
 
@@ -64,11 +43,8 @@ export class Parser {
 
     this.currentLineTokens = replacer.apply();
 
-    keywords.forEach((key) => {
-      if (
-        this.currentLineTokens.includes(key.toLowerCase()) &&
-        this.keywordProcessors.has(key)
-      ) {
+    this.registry.keywords().forEach((key) => {
+      if (this.currentLineTokens.includes(key)) {
         this.handleKeywordDeclaration(key);
       }
     });
@@ -76,7 +52,7 @@ export class Parser {
     this.appendProcessedLine(this.currentLineTokens);
   }
 
-  private handleKeywordDeclaration(key: KeywordType): void {
+  private handleKeywordDeclaration(key: string): void {
     const keywordIndex = this.currentLineTokens.findIndex((v) => v === key);
     const tokensAfterKeyword = this.currentLineTokens.slice(keywordIndex + 1);
     const nameOffsetInSlice = tokensAfterKeyword.findIndex(Boolean);
@@ -92,11 +68,11 @@ export class Parser {
   }
 
   private invokeKeywordProcessor(
-    key: KeywordType,
+    key: string,
     variable: string,
     variableIndex: number
   ): void {
-    const processor = this.keywordProcessors.get(key);
+    const processor = this.registry.get(key);
 
     if (processor && !/^\$[\d{]/.test(variable)) {
       const newTabStopId = this.generateNextTabStopId();
